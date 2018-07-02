@@ -22,7 +22,7 @@ filas = []
 codificacion = 'utf-8-sig'
 for file in ficheros_entrada:
     data = json.load(codecs.open(file, 'r', codificacion))
-    filas += [element['attributes'] for element in d] # Concatenación de listas
+    filas += [element['attributes'] for element in data] # Concatenación de listas
 
 # Escribe las filas en el fichero especificado
 with open(fichero_salida, 'w', newline='') as f:
