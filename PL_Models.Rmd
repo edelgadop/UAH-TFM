@@ -1,0 +1,270 @@
+---
+title: "TFM Modelos y predicciones"
+output: html_notebook
+---
+Cargamos las librerias
+```{r}
+library('ggplot2')
+library('forecast')
+library('tseries')
+library(spTimer)
+library(dplyr)
+library(bsts)
+library(lubridate)
+library(RgoogleMaps)
+```
+Seleccionamos carpeta y cargamos ficheros
+```{r}
+setwd("C:\\Users\\Admin\\Documents\\!!!!! UAH\\UAH-TFM-master_V2\\UAH-TFM-master\\data")
+data0 <- read.table("EK_top5_1Q16.csv", sep=",", header=T)
+```
+Trabajo con variables
+```{r}
+str(data0)
+data0$timestamp <- as.Date(data0$timestamp)
+data0$Year      <- year(data0$timestamp)
+data0$Month     <- month(data0$timestamp)
+data0$Day       <- day(data0$timestamp)
+data0$WeekDay   <- weekdays(data0$timestamp)
+
+
+```
+Element keys
+```{r}
+table(data0$element_key)
+
+```
+
+```{r}
+markers <- matrix(c(1,2,3,4,5), nrow=5) 
+markers <- cbind(markers, unique(cbind(data0[,3:4]))) 
+colors <- matrix(c("red","red","red","red","red"), nrow=5) 
+markers <- cbind(markers,colors)
+colnames(markers) <- c("label","lat","lon","color")
+
+
+mimapa <- GetMap(center="Seattle", zoom=12,
+                    extraURL="&style=feature:road.highway|visibility:off",
+                    destfile = "seattle.png",markers=markers)
+
+PlotOnStaticMap(mimapa)
+```
+
+
+
+# Forecast
+```{r}
+data <- subset(data0, with(data0, as.numeric(data0$element_key) == 1234))
+```
+Resto
+```{r}
+
+```
+
+```{r}
+#--------------------------------------------------------
+# se saca la serie y se crean tres columnas quitando outliers y haciendo las medias
+#--------------------------------------------------------
+count_ts = ts(data[, c('occupation_perc')])
+data$clean_occupation_perc = tsclean(count_ts)
+data$occupation_perc_ma = ma(data$clean_occupation_perc, order=7) # using the clean count with no outliers
+data$occupation_perc_ma30 = ma(data$clean_occupation_perc, order=30)
+```
+
+```{r}
+#--------------------------------------------------------
+# descomposion en componentes seasonal, trend y cycle
+#--------------------------------------------------------
+count_ma = ts(na.omit(data$occupation_perc_ma), frequency=30)
+decomp = stl(count_ma, s.window="periodic")
+deseasonal_cnt <- seasadj(decomp)
+plot(decomp)
+```
+
+```{r}
+#--------------------------------------------------------
+# estacionariedad
+#--------------------------------------------------------
+adf.test(count_ma, alternative = "stationary")
+```
+
+
+
+```{r}
+#--------------------------------------------------------
+# autocorrelaciones
+#--------------------------------------------------------
+Acf(count_ma, main='')
+Pacf(count_ma, main='')
+#--------------------------------------------------------
+```
+
+
+
+```{r}
+
+count_d1 = diff(deseasonal_cnt, differences = 1)
+plot(count_d1)
+adf.test(count_d1, alternative = "stationary")
+Acf(count_d1, main='ACF for Differenced Series')
+Pacf(count_d1, main='PACF for Differenced Series')
+```
+
+
+```{r}
+#--------------------------------------------------------
+# ARIMA
+#--------------------------------------------------------
+auto.arima(deseasonal_cnt, seasonal=FALSE)
+```
+
+
+```{r}
+#--------------------------------------------------------
+#Evaluate and Iterate
+#--------------------------------------------------------
+fit<-auto.arima(deseasonal_cnt, seasonal=FALSE)
+tsdisplay(residuals(fit), lag.max=45, main='(1,1,1) Model Residuals')
+#--------------------------------------------------------
+fit2 = arima(deseasonal_cnt, order=c(1,1,7))
+tsdisplay(residuals(fit2), lag.max=15, main='Seasonal Model Residuals')
+#--------------------------------------------------------
+fcast <- forecast(fit2, h=30)
+plot(fcast)
+```
+
+```{r}
+#--------------------------------------------------------
+hold <- window(ts(deseasonal_cnt), start=700)
+fit_no_holdout = arima(ts(deseasonal_cnt[-c(700:725)]), order=c(1,1,7))
+fcast_no_holdout <- forecast(fit_no_holdout,h=25)
+plot(fcast_no_holdout, main=" ")
+lines(ts(deseasonal_cnt))
+#--------------------------------------------------------
+fit_w_seasonality = auto.arima(deseasonal_cnt, seasonal=TRUE)
+fit_w_seasonality
+seas_fcast <- forecast(fit_w_seasonality, h=30)
+plot(seas_fcast)
+#--------------------------------------------------------
+```
+```{r}
+
+```
+
+BSTS
+
+```{r}
+data <- subset(
+  data0, 
+  with
+  (
+    data0, 
+    as.numeric(data0$element_key) == 1234
+  )
+)
+```
+
+
+```{r}
+# se cambia el tipo de datos de la varable timestamp
+str(data)
+data$timestamp = as.Date(data$timestamp)
+
+
+
+
+ss <- AddLocalLinearTrend(list(), data$occupation_perc)
+ss <- AddSeasonal(ss, data$occupation_perc, nseasons = 52)
+model1 <- bsts(data$occupation_perc,
+               state.specification = ss,
+               niter = 1000)
+
+
+plot(model1)
+plot(model1, "components")  # plot(model1, "comp") works too!
+plot(model1, "help")
+```
+
+
+# BSTS
+
+
+```{r}
+data <- subset(
+  data0, 
+  with
+  (
+    data0, 
+    as.numeric(data0$element_key) == 1234
+  )
+)
+```
+
+```{r}
+ss <- AddLocalLinearTrend(list(), data$occupation_perc)
+ss <- AddSeasonal(ss, data$occupation_perc, nseasons = 52)
+model1 <- bsts(data$occupation_perc,
+               state.specification = ss,
+               niter = 1000)
+```
+
+```{r}
+plot(model1)
+```
+
+```{r}
+plot(model1, "components")  # plot(model1, "comp") works too!
+```
+# SPTimer
+```{r}
+# # un ek
+# 
+# s<-c('1234')
+# DataFit<-spT.subset(data=data, var.name=c("element_key"), s=s, reverse=TRUE) 
+# DataFit<-subset(DataFit, with(DataFit, !(Day %in% c(30, 31) & Month == 8)))
+# DataValPred<-spT.subset(data=data, var.name=c("element_key"), s=s) 
+# DataValPred<-subset(DataValPred, with(DataValPred, !(Day %in% c(30, 31) & Month == 8)))
+
+
+# todos ek
+
+data <- data0
+DataFit<-subset(data, with(data, !(Day %in% c(30, 31) & Month == 8)))
+DataValPred<-subset(data, with(data, !(Day %in% c(30, 31) & Month == 8)))
+
+```
+
+```{r}
+coords<-as.matrix(unique(cbind(DataFit[,2:3])))
+pred.coords<-as.matrix(unique(cbind(DataValPred[,2:3])))
+```
+
+```{r}
+set.seed(11)
+post.gp <- spT.Gibbs(formula=occupation_perc ~ prcp + tmax + tmin,
+                     data=DataFit, 
+                     model="GP", 
+                     coords=~longitude+latitude,
+                     distance.method="geodetic:km", 
+                     scale.transform="SQRT",
+                     tol.dist=0.001,
+                     spatial.decay=spT.decay(distribution=Gamm(2,1),tuning=0.1))
+```
+
+```{r}
+print(post.gp)
+summary(post.gp)
+```
+
+```{r}
+set.seed(11)
+pred.gp <- predict(post.gp, newdata=DataValPred, newcoords=~longitude+latitude, tol.dist = 0.001)
+print(pred.gp)
+names(pred.gp)
+```
+
+```{r}
+summary(post.gp)
+spT.validation(DataValPred$occupation_perc,c(pred.gp$Median))  
+```
+
