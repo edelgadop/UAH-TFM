@@ -4,9 +4,9 @@ output: html_notebook
 ---
 Cargamos las librerias
 ```{r}
-library('ggplot2')
-library('forecast')
-library('tseries')
+library(ggplot2)
+library(forecast)
+library(tseries)
 library(spTimer)
 library(dplyr)
 library(bsts)
@@ -21,13 +21,11 @@ data0 <- read.table("EK_top5_1Q16.csv", sep=",", header=T)
 Trabajo con variables
 ```{r}
 str(data0)
-data0$timestamp <- as.Date(data0$timestamp)
+data0$timestamp <- ymd_hms(data0$timestamp)
 data0$Year      <- year(data0$timestamp)
 data0$Month     <- month(data0$timestamp)
 data0$Day       <- day(data0$timestamp)
 data0$WeekDay   <- weekdays(data0$timestamp)
-
-
 ```
 Element keys
 ```{r}
@@ -42,10 +40,11 @@ colors <- matrix(c("red","red","red","red","red"), nrow=5)
 markers <- cbind(markers,colors)
 colnames(markers) <- c("label","lat","lon","color")
 
-
-mimapa <- GetMap(center="Seattle", zoom=12,
-                    extraURL="&style=feature:road.highway|visibility:off",
-                    destfile = "seattle.png",markers=markers)
+mimapa <- GetMap(center="Seattle", 
+                 zoom=12,
+                 extraURL="&style=feature:road.highway|visibility:off",
+                 destfile = "seattle.png",
+                 markers=markers)
 
 PlotOnStaticMap(mimapa)
 ```
