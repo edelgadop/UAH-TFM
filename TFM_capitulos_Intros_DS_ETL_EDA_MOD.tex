@@ -1,0 +1,1192 @@
+\documentclass{book}
+\renewcommand{\tablename}{Tabla}
+\usepackage[latin1]{inputenc}
+\usepackage[spanish, es-tabla]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[font=small,labelfont=bf]{caption}
+% Bibliografía
+\usepackage[backend=biber]{biblatex}
+\addbibresource{TFMbib.bib}
+% Bookmarks, hidelinks(hyperlinks sin caja roja), linktocpage(link desde el número, no el nombre)
+\usepackage[bookmarks,hidelinks,linktocpage=true]{hyperref}
+% Quitar encabezado de las páginas en blanco
+\usepackage{emptypage}
+
+\title{TFM}
+
+\begin{document}
+\emergencystretch 3em % Evita que los nombres largos de los ficheros ocupen los márgenes 
+
+\begin{titlepage} % Suppresses headers and footers on the title page
+
+	\centering % Centre everything on the title page
+	
+  \begin{figure}
+	\centering
+	\includegraphics[scale=0.4]{UAH-logo}
+	\end{figure}
+	
+	
+	\scshape % Use small caps for all text on the title page
+
+	\vfill
+	\Large Máster en Data Science
+	\vfill
+	
+	\LARGE{Trabajo Fin de Máster}
+
+	
+	\vspace*{\baselineskip} % White space at the top of the page
+	
+	%------------------------------------------------
+	%	Title
+	%------------------------------------------------
+	
+	\rule{\textwidth}{1.6pt}\vspace*{-\baselineskip}\vspace*{3.2pt} % Thick horizontal rule
+	\rule{\textwidth}{0.4pt} % Thin horizontal rule
+	
+	\vspace{0.75\baselineskip} % Whitespace above the title
+	
+	{\LARGE PREDICCIÓN DE OCUPACIÓN DE PARQUÍMETROS\\ SEGÚN MODELOS PREDICTIVOS ESPACIO-TEMPORALES\\} % Title
+	
+	\vspace{0.75\baselineskip} % Whitespace below the title
+	
+	\rule{\textwidth}{0.4pt}\vspace*{-\baselineskip}\vspace{3.2pt} % Thin horizontal rule
+	\rule{\textwidth}{1.6pt} % Thick horizontal rule
+	
+	\vspace{2\baselineskip} % Whitespace after the title block
+	
+	%------------------------------------------------
+	%	Subtitle
+	%------------------------------------------------
+	
+	
+	\vspace*{3\baselineskip} % Whitespace under the subtitle
+	
+	%------------------------------------------------
+	%	Editor(s)
+	%------------------------------------------------
+	
+	Alumnos:
+	
+	\vspace{0.5\baselineskip} % Whitespace before the editors
+	
+	{\scshape\Large Eva Carbón \\ Emilio Delgado \\ Cintia García \\ Paloma Panadero\\ Pedro Sánchez \\} % Editor list
+	
+	\vspace{0.5\baselineskip} % Whitespace below the editor list
+	
+ % Editor affiliation
+	
+
+\end{titlepage}
+
+\tableofcontents
+
+\listoffigures
+
+\listoftables
+
+
+\chapter{Introducción}
+\section{Objetivo}
+En este documento de trabajo fin de máster analizamos en profundidad el uso de técnicas de Big Data y Aprendizaje Automático para la predicción de porcentajes de ocupación de las zonas de aparcamiento reguladas por parquímetros de la ciudad de Seattle.
+\smallbreak
+El resultado de este trabajo se puede aprovechar para la creación o mejora de aplicaciones móviles (apps) asociadas al uso de aparcamientos regulados por parquímetros. 
+\smallbreak
+Son muchas las apps para aparcar disponibles para smartphones pero el propio mercado de oferta y demanda ha eliminado competencia, algunas han ido desapareciendo, y otras tienen un ámbito de actuación restringido (sólo en algunos municipios y ciudades). Una de las funcionalidades más demandadas por los usuarios y por los operadores de aparcamiento a los desarrolladores de las apps es que puedan dar información de la situación de ocupación.
+\smallbreak
+En el caso de la ciudad de Barcelona, la consultora \textit{AIS Group} ha logrado desarrollar una app para informar a los conductores sobre las plazas disponibles en el momento de la conducción, sea ese momento presente o futuro, en modo predictivo. También como en nuestro caso, los aparcamientos objeto de predicción son aquellos de estacionamiento regulado \cite{Objone}.
+\smallbreak
+\textit{Find \& Pay} es el nombre de otra app que se encuentra ahora mismo en fase de prueba y testeo. Es la mayor app de aparcamiento en Europa, con presencia en casi 600 ciudades de once países distintos, con más de 500 probadores en 31 ciudades europeas que testean, validan y mejoran su capacidad predictiva \cite{Objtwo}. Esta app, desarrollada por \textit{EasyPark}, utiliza algoritmos avanzados para procesar diversas fuentes de datos, incluidos datos de transacciones, datos de seguimiento de dispositivos, datos de sensores y datos de automóviles en circulación, entre otros \cite{Objthree}.
+\smallbreak
+También hemos encontrado que la app \textit{OPnGO} utiliza modelos predictivos para ayudar a los conductores a encontrar plaza en las zonas de estacionamiento regulado en distintas ciudades de Francia, España, Bélgica, Luxemburgo y Brasil \cite{Objfour}.
+\smallbreak
+Por último, mencionar la app \textit{Telpark} que permite hasta el pago de denuncias, como servicio adicional a los mencionados anteriormente. Sus servicios están ya consolidados en decenas de ciudades españolas y también utiliza los modelos predictivos para su funcionamiento \cite{Objfive}.
+
+\section{Background del problema}
+Creemos en la bondad de este estudio y de su desarrollo futuro para ayudar a la población en general, debido a todos los \textbf{beneficios} que puede aportar el hecho de anticipar el conocimiento de las plazas libres en una determinada zona.
+\smallbreak
+Uno de los beneficios más evidentes es el \underline{ahorro de tiempo} para el propio conductor. La población pierde numerosos minutos de su vida buscando aparcamiento, dando vueltas a la misma manzana esperando que se libere una plaza. Ésto repercute negativamente en la vida de las personas, ya que deben prever un tiempo suplementario que perderán en buscar aparcamiento para poder llegar a la hora a su cita. Y llegar puntual sería el mejor de los casos, ya que los retrasos en las citas son frecuentes debido a las dificultades para aparcar. Algunas cifras a modo de ejemplo:
+\begin{itemize}
+\item un 30\% del volumen del tráfico del centro de las ciudades es causado por coches buscando aparcamiento
+\item en media un usuario pierde 20 minutos cada vez que busca aparcamiento
+\item el 32\% de las multas que se extienden en Madrid son por estacionamiento incorrecto \cite{Backone}
+\item en la ciudad de Londres un conductor pierde de media 67 horas al año buscando aparcamiento \cite{Backtwo} \item en EEUU la media es de 17 horas perdidas, lo que resulta en un montante económico de 345\$ por persona, teniendo en cuenta el coste de las emisiones, gasolina y tiempo
+\item y concretamente en la ciudad de Seattle se pierden 58 horas al año en esta búsqueda, lo que monetariamente se traduce en 1.205\$ por persona perdidos al año \cite{Backthree}
+\end{itemize}
+Otra ventaja asociada al uso de un predictor de ocupación en zonas reguladas por parquímetros es la \underline{reducción de contaminación}. Una persona que no tiene a su disposición esta información daría vueltas por la zona deseada hasta encontrar aparcamiento, dando lugar a un gasto extra de gasolina y también un alto nivel de contaminación asociado, ya que precisamente cuando buscamos plazas libres conducimos en marchas cortas, que son las que más efectos contaminantes tienen. Por ilustrar este dato, en la ciudad alemana de Freiburg el 74\% del tráfico de la ciudad se debe a conductores buscando aparcamiento \cite{Backfour}. En Los Ángeles este nivel de tráfico llega al 30\% \cite{Backfive}. Las emisiones de gases de efecto invernadero se verían reducidas considerablemente si se consigue reducir el tiempo de búsqueda de aparcamiento. Los expertos en movilidad tienen incluso un nombre para este fenómeno: tráfico de agitación.
+\smallbreak
+También altera el humor de las personas, la espera en general hace que nos pongamos más nerviosos y perjudica nuestra actividad cardíaca. La \underline{felicidad} de la población se ve afectada por esta espera en la búsqueda de aparcamiento, generando además peleas entre conductores que se disputan una misma plaza. En este sentido, predecir la ocupación en una determinada zona hará que el conductor sepa si por ejemplo tiene que irse a otra zona colindante para aumentar sus posibilidades de aparcar más rápido, haciendo que no tenga que perder la paciencia en la zona con nivel de ocupación más alto. De media dos tercios de las personas que se ven obligadas a buscar aparcamiento confiesan sentirse estresadas en esos momentos \cite{Backsix}. 
+\smallbreak
+Y no hay que olvidar el beneficio \underline{comercial}, pues el hecho de que una zona suela tener problemas para poder aparcar ahuyenta a posibles compradores de acudir a esa zona a visitar los comercios locales. Así, si se sabe con antelación la ocupación de una determinada área, será más fácil animar al consumidor a acudir a los comercios en ese área.
+\smallbreak
+El \underline{transporte público} existente en la ciudad también se vería beneficiado de la puesta a disposición del público de las predicciones sobre ocupación que vamos a exponer, ya que en el caso de que una zona urbana esté masivamente ocupada, el usuario podría tender a dejar aparcado el coche en casa y optar por los servicios públicos de transporte para llegar a su punto de destino.
+
+
+
+\chapter{Fuentes de Datos}
+En este capítulo presentamos las múltiples fuentes de datos que hemos considerado para el análisis.
+\smallbreak
+Hemos comenzado buscando en Internet datasets públicos con datos de uso de parquímetros, concretamente sus tickets o transacciones. Aunque como preveíamos la disponibilidad pública de este tipo de información es muy escasa, el dataset elegido como fuente de datos para el TFM no ha sido el único que hemos encontrado. Hemos descartado por comparación en número de registros el uso de un dataset de la ciudad de Melbourne, porque su tamaño es mucho menor (más de 342 mil registros) y por estar limitado temporalmente a un único año \cite{FDone}. Y también hemos descartado el uso de otro dataset con más registros porque la información de ocupación corresponde a la utilización de aparcamientos privados en la ciudad de Bath, y nuestro objetivo era obtener datos del uso de aparcamientos públicos, es decir, de parquímetros en la calle \cite{FDtwo}.
+\smallbreak
+El dataset con transacciones de uso de parquímetros públicos que hemos seleccionado como fuente principal de datos de nuestro TFM lo hemos encontrado en un Github con la documentación publicada por Rex Thompson como proyecto final de sus estudios de Data Science en la Universidad de Washington en 2017, y cuyo objetivo de estudio es totalmente diferente del nuestro. El objetivo de Rex Thompson era el análisis de los registros de los parquímetros para calcular el dinero total recaudado por la ciudad de Seattle durante las horas en las que hay fijadas restricciones de aparcamiento \cite{FDthree}.
+\smallbreak
+Los datos en crudo originales recopilados en el Github mencionado pertenecen al departamento de transportes de Seattle, conocido como SDOT (the city of Seattle Deparment of Transportation), que indica en su web que pone a disposición pública esta información con el objetivo de animar a los desarrolladores a crear aplicaciones que puedan ayudar a los usuarios a encontrar aparcamiento más rápidamente y pasar menos tiempo circulando o en atascos.
+\smallbreak
+SDOT indica que los parquímetros de Seattle operan de Lunes a Sábado entre las 8am y las 8pm, con límites de tiempo de uso que pueden variar entre las 2, 4 o 10 horas. Y en periodos de desplazamientos al trabajo por la mañana y por la tarde-noche no está permitido el aparcamiento en algunas calles principales del centro de la ciudad. Añade también que el cálculo de la ocupación (número de transacciones dividido por el número de plazas disponibles en un periodo) no reflejaría la situación real ya que hay vehículos que no pagan (por causas justificadas o no).
+\newpage
+En el proyecto de Rex Thompson se utilizan dos datasets que publica SDOT mediante APIs:
+\begin{itemize}
+\item \textit{Paid Parking information data} \cite{FDfour}, que contiene un histórico de transacciones desde Enero de 2012 a Septiembre de 2017, y en el que cada registro contiene como variables de interés para nuestro proyecto las siguientes:
+	\begin{itemize}
+	\item \textit{TransactionId}: identificador único de la transacción realizada en el parquímetro
+	\item \textit{TransactionDateTime}: fecha y hora de la transacción
+	\item \textit{Duration\_mins}: duración en minutos reservada para el aparcamiento
+	\item \textit{ElementKey}: identificador del segmento de la calle donde se ubica el parquímetro
+	\end{itemize}
+\item \textit{Parking Blockface information data} \cite{FDfive}, que descarga un fichero pequeño llamado \textit{'Blockface.csv'} que complementa al dataset anterior y contiene como variables de interés para nuestro proyecto las siguientes:
+	\begin{itemize}
+	\item \textit{ElementKey}: coincide con el dataset anterior
+	\item \textit{ParkingSpaces}: el número de plazas de parking disponibles en el segmento de calle
+	\item \textit{PaidParkingArea}: el barrio o distrito de la ciudad al que está asociado el segmento de calle
+	\end{itemize}
+\end{itemize}
+
+Hemos aprovechado el trabajo laborioso ya realizado y compartido por Rex Thompson de recogida, limpieza y consolidación de los datos del primer dataset de transacciones, ya que SDOT sólo permite consultas que obtienen como respuesta ficheros con información de un máximo de 7 días. El fichero global de transacciones consolidado por Rex Thompson para el periodo entre el 1 de Enero de 2012 y el 30 de Septiembre de 2017 tiene un tamaño de 5.32GB y más de 62 millones de registros, y se llama \textit{'ParkingTransaction\_20120101\_20170930\_cleaned.csv'} (\textbf{DATASET-1}). También aprovechamos la limpieza realizada sobre el segundo dataset y utilizamos el fichero disponible llamado \textit{'Blockface\_cleaned.csv'} (\textbf{DATASET-2}).
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{FD-dataset1}
+		\caption{Extracto de las primeras muestras del DATASET-1}
+		\label{FD-dataset1}
+	\end{figure}
+	
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{FD-dataset2}
+		\caption{Extracto de las primeras muestras del DATASET-2}
+		\label{FD-dataset2}
+	\end{figure}
+	
+Para nuestro proyecto necesitábamos añadir a los dos datasets mencionados los datos geoespaciales de localización de los parquímetros. Por ello hemos buscado en Internet las localizaciones GPS con latitud y longitud asociadas a los parquímetros de la ciudad de Seattle y hemos encontrado que SDOT publica también esa información a través de una API \cite{FDsix} \cite{FDsixb}. Hemos creado un notebook de Python llamado \textit{'FD\_SDOT\_PayStations.ipynb'} para realizar las consultas a esa API y descargar la información en dos ficheros json (\textit{'paystations\_ids\_1\_1000.json'} y \textit{'paystations\_ids\_1001\_1800.json'}). Son necesarios dos ficheros debido a que la API fija un límite de respuesta de 1000 registros por consulta. En la segunda parte del mismo notebook seleccionamos los tres parámetros que nos interesan de los ficheros json:
+	\begin{itemize}
+	\item \textit{ELMNTKEY}: identificador del segmento de calle que coincide con los 2 datasets de partida
+	\item \textit{SHAPE\_LAT}: latitud de coordenadas GPS
+	\item \textit{SHAPE\_LNG}: longitud de coordenadas GPS
+	\end{itemize}
+
+Luego hemos unido los datos en un dataframe de Pandas calculando la media de las distintas coordenadas existentes para un mismo \textit{element key} antes de escribirlo en un fichero csv llamado \textit{'Coord\_EK.csv'} que reutilizaremos como dataset en otros notebooks (\textbf{DATASET-3}). Como habíamos indicado anteriormente el identificador \textit{element key} hace referencia a un segmento de calle, y dependiendo de la longitud del segmento podemos tener hasta 3 coordenadas distintas para un mismo \textit{element key}, por eso calculando la media de los valores de coordenadas existentes para un mismo \textit{element key} obtenemos las coordenadas asociadas al punto central del segmento de calle asociado al \textit{element key}. Hemos asumido por simplicidad que un element key identifica a un único parquímetro.
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{FD-dataset3}
+		\caption{Extracto de las primeras muestras del DATASET-3}
+		\label{FD-dataset3}
+	\end{figure}
+
+Asociado también a la ciudad de Seattle hemos encontrado en Kaggle \cite{FDsixc} un dataset que contiene información meteorológica histórica desde 1948 hasta 2017 (\textbf{DATASET-4}: fichero \textit{'seattleWeather\_1948-2017.csv'}) \cite{FDseven}. Cada registro de este dataset meteorológico contiene las siguientes variables de interés para nuestro proyecto: 
+	\begin{itemize}
+	\item \textit{DATE}: fecha de observación
+	\item \textit{PRCP}: cantidad de precipitación medida en pulgadas
+	\item \textit{TMAX}: temperatura máxima del día medida en grados Farenheit
+	\item \textit{TMIN}: temperatura mínima del día medida en grados Farenheit
+	\end{itemize}
+	
+	\newpage
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{FD-dataset4}
+		\caption{Extracto de las primeras muestras del DATASET-4}
+		\label{FD-dataset4}
+	\end{figure}
+	
+También relacionado con la meteorología hemos encontrado un dataset con registros asociados a sensores de temperatura ubicados en la ciudad de Seattle que recogen datos de temperatura ambiente y del asfalto por minuto desde Marzo de 2014 hasta hoy (\textbf{DATASET-5}: fichero \textit{'Road\_Weather\_Information\_Stations.csv'} \cite{FDeight}). 
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{FD-dataset5}
+		\caption{Extracto de las primeras muestras del DATASET-5}
+		\label{FD-dataset5}
+	\end{figure}
+	
+A diferencia del dataset anterior en el que los datos son diarios, en este dataset se dispone de datos medidos cada minuto y recogidos en 10 estaciones con distintas ubicaciones. Hemos creado un notebook de Python llamado \textit{'FD\_Road\_Weather\_Information\_Stations.ipynb'} que transforma el dataset original para poder combinarlo con el dataset de transacciones. Entre las transformaciones necesarias destacamos las siguientes:
+	\begin{itemize}
+	\item filtrado de las horas en el rango de horas hábiles de uso de los parquímetros y agregación por horas de las medidas por minuto
+	\item conversión de medidas de grados Farenheit a Celsius
+	\item cálculo de la estación meteorológica de medida más próxima a cada parquímetro utilizando la distancia Haversine que es la que se usa habitualmente para calcular distancias entre puntos ubicados con coordenadas GPS ya que tiene en cuenta la curvatura de la tierra. Generamos el fichero \textit{'Coord\_EK\_stations.csv'} (\textbf{DATASET-6})
+	\item completado de la serie temporal realizando interpolación porque faltan datos para algunos días y horas que provocarían nulos indeseados en la combinación con el dataset de transacciones, creando el fichero \textit{'RWIS\_completed.csv'} (\textbf{DATASET-7})
+	\end{itemize}
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{FD-dataset6}
+		\caption{Extracto de las primeras muestras del DATASET-6}
+		\label{FD-dataset6}
+	\end{figure}
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{FD-dataset7}
+		\caption{Extracto de las primeras muestras del DATASET-7}
+		\label{FD-dataset7}
+	\end{figure}
+
+\newpage
+En relación con las ubicaciones de los parquímetros en la ciudad de Seattle hemos buscado información sobre su proximidad a puntos de interés cultural o deportivo en la ciudad, ya que su ocupación puede estar condicionada por esa situación. En la web de datos públicos de la ciudad de Seattle hemos encontrado ambas informaciones. Por un lado con un dataset que ubica teatros, cines, museos, bibliotecas, galerías, clubs de música, etc \cite{FDnine} (\textbf{DATASET-8}: fichero \textit{'Seattle\_Cultural\_Space\_Inventory.csv'}). 
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{FD-dataset8}
+		\caption{Extracto de las primeras muestras del DATASET-8}
+		\label{FD-dataset8}
+	\end{figure}
+
+\newpage
+Y por otro lado con varios datasets que ubican instalaciones deportivas en la ciudad para practicar diferentes deportes \cite{FDten}:
+	\begin{itemize}
+	\item baseball: fichero \textit{'Baseball\_Field.csv'} (\textbf{DATASET-9})
+	\item tenis: fichero \textit{'Tennis\_Court\_Point.csv'} (\textbf{DATASET-10})
+	\item natación: fichero \textit{'Swimming\_Pools.csv'} (\textbf{DATASET-11}) 
+	\item baloncesto: fichero \textit{'Basketball\_Court\_Point.csv'} (\textbf{DATASET-12})
+	\item futbol: fichero \textit{'Soccer\_Field.csv'} (\textbf{DATASET-13})
+	\item atletismo: fichero \textit{'Track\_Fields.csv'} (\textbf{DATASET-14})
+	\end{itemize}
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{FD-dataset9}
+		\caption{Extracto de las primeras muestras del DATASET-9}
+		\label{FD-dataset9}
+	\end{figure}
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{FD-dataset10}
+		\caption{Extracto de las primeras muestras del DATASET-10}
+		\label{FD-dataset10}
+	\end{figure}
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.35]{FD-dataset11}
+		\caption{Extracto de las primeras muestras del DATASET-11}
+		\label{FD-dataset11}
+	\end{figure}
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.35]{FD-dataset12}
+		\caption{Extracto de las primeras muestras del DATASET-12}
+		\label{FD-dataset12}
+	\end{figure}
+	
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.35]{FD-dataset13}
+		\caption{Extracto de las primeras muestras del DATASET-13}
+		\label{FD-dataset13}
+	\end{figure}	
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.35]{FD-dataset14}
+		\caption{Extracto de las primeras muestras del DATASET-14}
+		\label{FD-dataset14}
+	\end{figure}
+
+\newpage
+Hemos creado un notebook de Python llamado \textit{'FD\_Cultural\_And\_Sports\_Points.ipynb'} para combinar estos 7 datasets con el \textbf{DATASET-3} y crear un nuevo dataset a partir de éste último. Con el notebook descargamos los distintos ficheros csv a partir de APIs, seleccionamos las variables de interés de cada dataset, realizamos una pequeña limpieza y combinamos los registros con el \textbf{DATASET-3} para calcular la distancia Haversine entre los parquímetros y los puntos de interés (culturales y deportivos). En el nuevo dataset contenido en el fichero \textit{'Coord\_cult\_\&\_sport.csv'} (\textbf{DATASET-15}) hemos creado una nueva columna binaria por cada tipo de punto de interés en el que señalamos con un valor 1 aquellos parquímetros que tienen un punto de interés a una distancia inferior a 75 metros, y con un valor 0 al resto. Observamos que con esa distancia se descartan los datasets asociados a natación y atletismo porque no hay ningún parquímetro cerca.
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{FD-dataset15}
+		\caption{Extracto de las primeras muestras del DATASET-15}
+		\label{FD-dataset15}
+	\end{figure}
+
+Además también hemos buscado información sobre eventos de interés en la ciudad que pudieran influir en el uso de los parquímetros, y en la web de datos públicos de la ciudad de Seattle hemos encontrado un dataset con algunos eventos para varios meses del año 2016 \cite{FDeleven} (fichero \textit{'City\_of\_Seattle\_Events.csv'}). Hemos creado un notebook de Python llamado \textit{'FD\_Eventos\_Seattle\_2016.ipynb'} para descargar el fichero a través de API y combinar esa información con un dataframe manual que hemos creado con otros eventos que hemos encontrado en internet de forma independiente. Este dataset (\textbf{DATASET-16}: fichero \textit{'Events\_2016.csv'}) se combinará con el dataset de transacciones para calcular la distancia Haversine e identificar por parquímetro y fecha las transacciones con un evento cerca y en ese día concreto.
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{FD-dataset16}
+		\caption{Extracto de las primeras muestras del DATASET-16}
+		\label{FD-dataset16}
+	\end{figure}
+
+Y por último hemos encontrado en internet un formulario para consultar información sobre la calidad del aire medida en las principales ciudades de Estados Unidos \cite{FDtwelve}. Hemos seleccionado la ciudad de Seattle, el año 2016 y los cuatro parámetros siguientes que son los considerados más relevantes para medir la polución del aire y que se relacionan con el motor y tubo de escape de los vehículos:
+\newpage
+	\begin{itemize}
+	\item monóxido de carbono (CO)
+	\item dióxido de nitrógeno ($NO_2$) 
+	\item ozono ($O_3$)
+	\item partículas en suspensión de 2,5 micrómetros o menos ($PM_{2.5}$)
+	\end{itemize}
+
+Hemos combinado el resultado de las cuatro consultas en un dataset mediante un sencillo notebook llamado \textit{'FD\_Air\_Quality\_Data\_Seattle\_conversion.ipynb'} en el que además hemos unificado la unidad de medida de las tres primeras variables como $\mu$g/$m^3$ a partir de fórmulas encontradas en internet \cite{FDthirteen} (\textbf{DATASET-17}: fichero \textit{'Air\_Quality\_Data\_Seattle\_2016.csv'}).
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{FD-dataset17}
+		\caption{Extracto de las primeras muestras del DATASET-17}
+		\label{FD-dataset17}
+	\end{figure}
+
+En resumen, hemos recopilado diversas fuentes de datos que podemos dividir en dos grupos. Los tres primeros datasets son los necesarios para construir una serie espacio-temporal del porcentaje de ocupación de plazas de parking. Y los datasets restantes son complementarios para añadir a esa serie variables adicionales que pueden tener influencia en el porcentaje de ocupación mencionado y por tanto ayudar a su predicción futura.
+
+
+
+\chapter{ETL de los Datos}
+Hemos creado un notebook de Python llamado \textit{'ETL\_Seattle\_serie\_2016.ipynb'} para realizar las tareas de preprocesamiento de las fuentes de datos que podríamos asimilar a los procesos de Extracción, Transformación y Carga, en los que se extraen datos desde múltiples fuentes, se limpian, manipulan o reformatean para luego cargarlos en este caso en otro fichero final que es el que se utilizará para crear los modelos de predicción.
+\smallbreak
+Decidimos acotar el análisis de las fuentes de datos al año 2016 porque es el año más reciente para el que tenemos datos todos los meses en el dataset inicial de transacciones (\textbf{DATASET-1}) y para simplificar el tamaño del dataset ya que sólo con ese año tiene casi 11 millones de registros.
+\smallbreak
+En el notebook mencionado realizamos las siguientes acciones destacables sobre el \textbf{DATASET-1} (transacciones): 
+	\begin{itemize}
+	\item Extracción del dataset del fichero csv origen a un dataframe de Pandas, filtrado de las transacciones correspondientes al año 2016 y creación de una nueva variable llamada \textit{final\_date\_time} a partir de las columnas \textit{transaction\_date\_time} y \textit{duration\_mins}.
+	\item Eliminación de transacciones con duración incorrecta (negativa o nula) que son menos de un 0,1\% del total.
+	\item Transformación de las transacciones con distinto día de inicio y fin que son un poco más de un 0,1\% del total. Como para el análisis de ocupación sólo hay que tener en cuenta el rango de operación de los parquímetros (8-20h), es necesario duplicar las transacciones de larga duración para tener en cuenta los dos días, origen y final, de forma independiente, modificando sus fechas y horas para adaptarlas al rango de análisis. Así para la primera mitad de las transacciones duplicadas modificamos su fecha final para que coincida con la fecha inicial y su hora final a las 20h. Y para la segunda mitad de las transacciones duplicadas modificamos su fecha origen para que coincida con la fecha final y su hora origen a las 8h siempre que su hora final sea superior a esa hora, porque si es inferior borramos la segunda parte de la transacción duplicada. 
+	\item Borrado de las transacciones existentes con hora inicial y final inferior a las 8h o con hora inicial y final posterior a las 20h. Aunque no tienen sentido desde el punto de vista de uso de los parquímetros, existen en el dataset y es necesario borrarlas, suponiendo más de un 0,65\% del total.
+	\item Transformación de las horas iniciales y finales de las transacciones al rango horario de funcionamiento de los parquímetros. Para su posterior agregación redondeamos las horas eliminando los minutos y segundos y modificamos a las 08:00h las que tienen una hora inicial inferior y a las 20:00h las que tienen una hora final superior.
+	\item Borrado de las transacciones realizadas por error en domingos. Aunque también consideramos inicialmente la eliminación de los días festivos, finalmente no lo hicimos para facilitar la predicción por parte de los modelos considerando que la serie puede tener una estacionalidad de lunes a sábado.
+		\end{itemize}
+Comprobamos que después de la extracción y transformación del dataset su tamaño se ha reducido en algo más de un 0.76\%.
+\smallbreak
+Sobre el \textbf{DATASET-2} (segmentos de calle - capacidad de plazas y distritos) destacamos:
+	\begin{itemize}
+	\item Extracción del dataset del fichero csv origen a un dataframe de Pandas con más de 13.700 registros. En este dataset observamos que hay bastantes valores nulos y que para un mismo valor de \textit{element\_key} hay distintos valores en la columna \textit{parking\_spaces}, por lo que decidimos quedarnos con el máximo valor de capacidad de plazas agrupando por \textit{element\_key}. Adicionalmente encontramos dos parquímetros cada uno con dos valores distintos de barrio-distrito de la ciudad. Necesitaremos utilizar la información del tercer dataset para poder discriminar cuál es el valor más adecuado.
+	\item Eliminación de aquellos parquímetros con valores de capacidad de plazas igual a cero (sólo 6). Comprobamos que después de la extracción y transformación del dataset su tamaño se ha reducido a 1703 registros.
+	\end{itemize}
+
+Combinamos los primeros datasets para construir una serie espacio-temporal del porcentaje de ocupación de plazas de parking:
+	\begin{itemize}
+	\item Los tres primeros datasets comparten entre sí la variable \textit{element\_key}, habiendo 1514 valores distintos en el primer dataset, 1517 en el segundo y 1701 en el tercero. Al combinarlos entre sí en un nuevo dataframe observamos que disponemos de más de 10,6 millones de transacciones asociadas a 1443 parquímetros distintos.
+	\item Creamos dos nuevos dataframes como copia del último generado, donde añadimos una nueva columna llamada \textit{timestamp\_sign}. En el primer dataframe consideramos sólo la fecha-hora (\textit{timestamp}) de inicio de la transacción y la nueva columna toma el valor 1, y en el segundo dataframe consideramos sólo la fecha-hora de fin de la transacción y la nueva columna toma el valor -1. Uniendo ambos dataframes, la variable \textit{timestamp\_sign} nos ayudará a calcular el número de plazas ocupadas para cada parquímetro y hora.
+	\item Agrupando el dataframe anterior por \textit{element\_key} y \textit{timestamp}, creamos una nueva columna llamada \textit{occupation} calculada como la suma acumulada de la columna \textit{timestamp\_sign}. Luego eliminamos duplicados y nos quedamos con el último registro que es el que contiene la suma acumulada total y por tanto contabiliza las transacciones de inicio y fin registradas en una misma franja horaria. Agrupando luego por \textit{element\_key} y \textit{day\_year} (ordinal del día del año asociado al \textit{timestamp}), calculamos la suma acumulada total de la columna \textit{occupation} para obtener el total de plazas ocupadas para ese día y hasta esa hora. Por último convertimos el valor absoluto de ocupación en porcentaje dividiendo por el total de plazas disponibles.
+	\item Observamos que tenemos casi un 5\% de registros con un porcentaje de ocupación superior al 100\% y que además no corresponde a casos puntuales sino que casi el 82\% de los parquímetros tiene algún registro en esa situación. Una vez que revisamos que no hay ningún error en la generación de las cifras de ocupación acumuladas y que las transacciones realizadas en el mismo día y tramo horario se contabilizan correctamente, el problema sólo es atribuible a la cifra de plazas de parking disponibles.
+	\end{itemize}
+Corrección de la capacidad de plazas de parking disponibles:
+	\begin{itemize}
+	\item Hemos encontrado en la web de SDOT otra API \cite{ETLtwo} que contiene el campo \textit{ELMNTKEY} asociado a otros campos con información de plazas de aparcamiento, aunque no hemos conseguido localizar información explicativa al respecto. Hemos creado un notebook de Python aparte llamado \textit{'ETL\_SDOT\_StreetParkingCategory.ipynb'} para realizar las consultas a esa API y descargar la información en varios ficheros json (como ya habíamos mencionado anteriormente todas las APIs de SDOT fijan un límite de respuesta de 1000 registros por consulta). De cada fichero json seleccionamos los parámetros que nos interesan y consolidamos los datos en un dataframe de Pandas que volcamos finalmente en un fichero csv llamado \textit{'Street\_Parking.csv'} (\textbf{DATASET-18}). Obtenemos más de 46 mil registros sin duplicidad de \textit{element\_key}. Para cada segmento de calle identificado por el \textit{element\_key} tenemos las siguientes variables: \textit{parking\_category}, \textit{parking\_spaces}, \textit{total\_zones}, \textit{total\_nopark} y \textit{total\_spaces}, donde la cifra de la columna \textit{total\_spaces} es la suma de las 3 variables anteriores.
+	\item Eliminamos aquellos segmentos de calle con valores de capacidad de plazas igual a cero (97 registros).
+	\item Comparamos los datos de la columna \textit{parking\_spaces} del nuevo dataset con el \textbf{DATASET-2}  y encontramos que hay un 62\% de coincidencias, que es un valor alto teniendo en cuenta que en el \textbf{DATASET-2} teníamos valores diversos de capacidad para un mismo segmento de calle y habíamos seleccionado el valor máximo de los disponibles. Dado que hemos encontrado un nuevo valor de capacidad (la variable \textit{total\_spaces} que engloba a la que teníamos), decidimos utilizarla a pesar de no conocer el significado de las otras 2 variables y del sospechoso nombre de una de ellas (\textit{total\_zones} y \textit{total\_nopark}).
+	\item Recalculamos los porcentajes de ocupación considerando los nuevos valores de capacidad de plazas disponibles y observamos en este caso que tenemos sólo un 0,3\% de registros con un porcentaje de ocupación superior al 100\% y que además corresponden a sólo 194 segmentos de calle, por lo que procedemos a eliminarlos de la serie manteniendo su elevado tamaño total.
+	\item Adicionalmente decidimos acotar la serie teniendo en cuenta los valores de la variable \textit{parking\_category}. Menos de un 7\% de los parquímetros corresponden a categorías especiales (\textit{No Parking Allowed}, \textit{Restricted Parking Zone} o \textit{Carpool Parking}) que pueden perjudicar el objetivo de generalización de la predicción de nuestro proyecto, por lo que decidimos quedarnos únicamente con la categoría mayoritaria.
+	\end{itemize}
+Completamos la serie con las horas intermedias faltantes:
+	\begin{itemize}
+	\item Observamos que es necesario completar la serie porque hay muchos casos en los que no tenemos transacciones en el primer dataset durante alguna franja horaria. Por ejemplo, para un parquímetro podemos tener transacciones en la franja de las 12h (de 12:00 a 12:59) y no tener transacciones nuevas hasta las 16h, por lo que al construir la serie nos faltan las franjas de las 13h, 14h y 15h que tendrán la misma ocupación que la franja de las 12h porque no ha habido transacciones en ese rango horario y por tanto no hay cambios.
+	\item Observamos también que sólo 217 del total de 1110 parquímetros (menos del 20\%) tienen transacciones todos los hábiles del año. Pero no completamos esos casos porque en ese caso estaríamos falseando los datos.
+	\item Obtenemos una serie espacio-temporal de más de 3,8 millones de registros.
+	\end{itemize}
+Añadimos variables adicionales a la serie combinándola con el resto de datasets mencionados en el apartado anterior:
+	\begin{itemize}
+	\item Combinamos la serie con el \textbf{DATASET-4} (información meteorológica diaria) mediante la variable \textit{day\_year} añadiendo a la serie las columnas de cantidad de precipitación diaria, temperatura máxima y temperatura mínima diaria.
+	\item Añadimos el \textbf{DATASET-5} (sensor de temperatura más próxima por parquímetro) y \textbf{DATASET-6} (serie de medidas por hora de los sensores de temperatura) a la serie espacio-temporal, combinando el primer dataset por la variable \textit{element\_key} y el segundo por las variables \textit{timestamp} y \textit{station-closest}.
+	\item Añadimos el \textbf{DATASET-15} (indicadores booleanos de proximidad de puntos de interés cultural y deportivo a cada parquímetro) a la serie combinando los datasets por la variable \textit{element\_key}.
+	\item Con el \textbf{DATASET-16} (lista de día y coordenadas de eventos) creamos en la serie una nueva columna booleana que indica para cada transacción si ese día hay un evento o no, y si dicho evento además está próximo al parquímetro de cada transacción. Y como en casos anteriores la proximidad está calculada con la distancia Haversine y definida por un valor inferior a 75 metros.
+	\item Combinamos la serie con el \textbf{DATASET-17} (parámetros de calidad del aire) mediante la variable día del año (columna \textit{day\_year}).
+	\item Exportamos la serie a un fichero csv llamado \textit{'Serie\_Total2016\_ext.csv'}
+	\end{itemize}
+Y por último filtramos la serie global completa para seleccionar la información de la serie asociada a 30 parquímetros con los que realizamos la evaluación del mejor modelo de predicción. Para elegir los 30 parquímetros seleccionamos primero aquellos parquímetros con menos días del año sin transacciones. Y por otra parte seleccionamos también aquellos parquímetros que tienen un mayor número total de transacciones en el año. Con la intersección de esas dos selecciones obtenemos los 30 parquímetros elegidos para la evaluación de los modelos.
+
+
+
+\chapter{Análisis Exploratorio de los Datos (EDA)}
+En este capítulo realizamos un análisis exploratorio (EDA) de la serie espacio-temporal construida en el capítulo anterior. El objetivo es estudiar el \textit{dataset} en dos niveles, para encontrar sus características más relevantes y describir su estructura:
+	\begin{enumerate}
+		\item Análisis descriptivo estático, donde se estudian las covariables (variables que no son coordenadas espaciales o temporales y pueden describir o predecir el resultado), estableciendo relaciones entre ellas y extrayendo conclusiones con impacto en capítulos posteriores.
+		\item Análisis descriptivo dinámico, donde se analiza la estructura temporal y espacial de los datos, describiendo sus principales parámetros y características.
+	\end{enumerate} 
+
+\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{EDA-dataset-head1}
+		\includegraphics[scale=.5]{EDA-dataset-head2}
+		\caption{Extracto de las primeras muestras de la serie espacio-temporal}
+		\label{EDA-dataset-head}
+	\end{figure}
+
+El conjunto de datos bajo análisis consta de 22 columnas y 4.182.480 observaciones. En la Figura \ref{EDA-dataset-head} se muestra una captura de los cinco primeros registros. El dataset consta de dos columnas con coordenadas espaciales (\textit{latitude} y \textit{longitude}), una columna con coordenadas temporales (\textit{timestamp}), la variable a predecir (el porcentaje de ocupación, columna \textit{occupation\_perc}), y 15 covariables. 
+
+	\section{Análisis descriptivo estático}
+	La serie bajo estudio presenta las siguientes 9 covariables numéricas continuas:
+	\begin{itemize}
+		\item Temperatura máxima diaria
+		\item Temperatura mínima diaria
+		\item Cantidad de precipitación diaria
+		\item Temperatura media horaria de la superficie del asfalto
+		\item Temperatura media horaria ambiente
+		\item Cantidad de dióxido de nitrógeno
+		\item Cantidad de monóxido de carbono
+		\item Cantidad de ozono
+		\item Cantidad de partículas en suspensión de 2.5 micrómetros o menos
+	\end{itemize}
+	
+	\subsection{Temperatura máxima diaria}
+	La temperatura máxima registrada durante los días en los que se ha producido una transacción sigue la distribución que se muestra en la Figura \ref{EDA-dist-tmax} que es aproximadamente una distribución normal centrada en la media y con desviación típica la de la muestra. A lo largo de los días que recoge el dataset, la temperatura máxima media es de 17.14$ºC$, mientras que su desviación típica es 7.06$ºC$. 
+		
+	\begin{figure} [!h]
+		\centering
+		\includegraphics[scale=.2]{EDA-dist-tmaxC}
+		\caption{Distribución de temperaturas máximas}
+		\label{EDA-dist-tmax}
+	\end{figure}
+
+En la Tabla \ref{EDA-confint-tmax} se presentan los intervalos de confianza para la media y varianza de la temperatura máxima de la muestra ($\alpha=0.05$). Como puede observarse, el intervalo de confianza para ambas medidas es muy estrecho, debiéndose al tamaño elevado de la muestra.
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Parámetro       & 2.5\% & 97.5\% \\ \midrule
+Media (ºC)      & 17.136 & 17.150  \\
+Desv. Est. (ºC) & 7.050 & 7.060  \\ \bottomrule
+\end{tabular}
+\caption{Intervalo de confianza para la temperatura máxima}
+\label{EDA-confint-tmax}
+\end{table}
+
+	
+\subsection{Temperatura mínima diaria}
+Las mismas conclusiones que se han presentado sobre la temperatura máxima pueden realizarse sobre la temperatura mínima. La temperatura media mínima es 8.74$ºC$, mientras que su desviación típica es 4.54$ºC$. En la Figura \ref{EDA-dist-tmin} se muestra la distribución estadística y en la Tabla \ref{EDA-confint-tmin} los intervalos de confianza para cada parámetro, calculados para $\alpha=0.05$.
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.2]{EDA-dist-tminC}
+		\caption{Distribución de temperaturas mínimas}
+		\label{EDA-dist-tmin}
+	\end{figure}
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Parámetro       & 2.5\% & 97.5\% \\ \midrule
+Media (ºC)      & 8.731 & 8.740  \\
+Desv. Est. (ºC) & 4.536 & 4.542  \\ \bottomrule
+\end{tabular}
+\caption{Intervalo de confianza para la temperatura mínima}
+\label{EDA-confint-tmin}
+\end{table}
+
+De nuevo, debido al tamaño de la muestra, los valores de media y desviación típica calculados son muy precisos. Además, también puede asumirse que la distribución es normal.
+La normalidad tanto de temperatura máxima como de temperatura mínima puede ayudar con el desarrollo de los modelos predictivos posteriores, debido a que muchas veces exigen normalidad en las variables que se utilizan para la predicción.		
+
+	\subsection{Precipitaciones}
+	La distribución de precipitaciones se muestra en la Figura \ref{EDA-dist-prcp}, y los intervalos de confianza para media y desviación típica en la Tabla \ref{EDA-confint-prcp}. Presenta una media de 0.13 pulgadas y una desviación típica muestral de 0.26 pulgadas. Al igual que en secciones anteriores, los intervalos de confianza son estrechos, como corresponde a una muestra de un gran número de datos. Sin embargo, la distribución en este caso no es gaussiana, principalmente debido a no ser simétrica. 
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.2]{EDA-dist-prcp-new}
+		\caption{Distribución de precipitaciones}
+		\label{EDA-dist-prcp}
+	\end{figure}
+
+	\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Parámetro       & 2.5\% & 97.5\% \\ \midrule
+Media       & 0.1273 & 0.1278  \\
+Desv. Est.  & 0.2557 & 0.2561  \\ \bottomrule
+\end{tabular}
+\caption{Intervalo de confianza para las precipitaciones}
+\label{EDA-confint-prcp}
+\end{table}
+
+Este parámetro tiene mucha dispersión, pues su coeficiente de variación ($C_V$), calculado como
+
+\[ C_V = \dfrac{\sigma}{\bar{x}} \approx \dfrac{s}{\bar{x}},  \]
+
+da como resultado $C_V=2$. En porcentaje, el coeficiente de variación es del 200\%, lo que implica que estamos ante una característica con gran variabilidad. 
+
+
+\subsection{Temperatura media horaria del asfalto}
+	La temperatura media horaria de la superficie del asfalto sigue la distribución que se muestra en la Figura \ref{EDA-dist-troad}. Su media es de 18.28$ºC$, mientras que su desviación típica es 9.16$ºC$. 
+	\begin{figure} [!h]
+		\centering
+		\includegraphics[scale=.2]{EDA-dist-troad}
+		\caption{Distribución de temperatura media horaria del asfalto}
+		\label{EDA-dist-troad}
+	\end{figure}
+	
+En la Tabla \ref{EDA-confint-troad} se presentan los intervalos de confianza para la media y varianza de la temperatura media del asfalto en la muestra ($\alpha=0.05$). Como en las variables anteriores el intervalo de confianza para ambas medidas es muy estrecho, debiéndose al tamaño elevado de la muestra.
+	
+\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Parámetro       & 2.5\% & 97.5\% \\ \midrule
+Media (ºC)      & 18.265 & 18.284  \\
+Desv. Est. (ºC) & 9.154 & 9.167  \\ \bottomrule
+\end{tabular}
+\caption{Intervalo de confianza para la temperatura media horaria del asfalto}
+\label{EDA-confint-troad}
+\end{table}
+
+\subsection{Temperatura media horaria ambiente}
+	La temperatura media horaria ambiente sigue la distribución que se muestra en la Figura \ref{EDA-dist-tair}. Su media es de 14.65$ºC$, mientras que su desviación típica es 6.39$ºC$. En la Tabla \ref{EDA-confint-tair} se presentan los intervalos de confianza para la media y varianza de la temperatura media ambiente en la muestra ($\alpha=0.05$). 
+		
+	\begin{figure} [!h]
+		\centering
+		\includegraphics[scale=.2]{EDA-dist-tair}
+		\caption{Distribución de temperatura media horaria ambiente}
+		\label{EDA-dist-tair}
+	\end{figure}
+	
+\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Parámetro       & 2.5\% & 97.5\% \\ \midrule
+Media (ºC)      & 14.646 & 14.659  \\
+Desv. Est. (ºC) & 6.389 & 6.398  \\ \bottomrule
+\end{tabular}
+\caption{Intervalo de confianza para la temperatura media horaria ambiente}
+\label{EDA-confint-tair}
+\end{table}
+
+
+\subsection{Dióxido de nitrógeno}
+	La cantidad de dióxido de nitrógeno sigue la distribución que se muestra en la Figura \ref{EDA-dist-no}. Su media es de 56.65 $\mu$g/$m^3$, mientras que su desviación típica es 14.79 $\mu$g/$m^3$. 
+		\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.2]{EDA-dist-no}
+		\caption{Distribución de cantidad de dióxido de nitrógeno}
+		\label{EDA-dist-no}
+	\end{figure}
+	
+	En la Tabla \ref{EDA-confint-no} se presentan los intervalos de confianza para la media y varianza de la medida de dióxido de nitrógeno en la muestra ($\alpha=0.05$). 
+\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Parámetro       & 2.5\% & 97.5\% \\ \midrule
+Media			      & 56.633 & 56.663  \\
+Desv. Est.			& 14.779 & 14.800  \\ \bottomrule
+\end{tabular}
+\caption{Intervalo de confianza para la cantidad de dióxido de nitrógeno}
+\label{EDA-confint-no}
+\end{table}
+
+\newpage		 
+\subsection{Monóxido de carbono}
+	La cantidad de monóxido de carbono sigue la distribución que se muestra en la Figura \ref{EDA-dist-co}, que a diferencia de la variable anterior no es gaussiana. Su media es de 512.55 $\mu$g/$m^3$, mientras que su desviación típica es 194.61 $\mu$g/$m^3$. En la Tabla \ref{EDA-confint-co} se presentan los intervalos de confianza para la media y varianza de la medida de monóxido de carbono en la muestra ($\alpha=0.05$). 
+		
+	\begin{figure} [!h]
+		\centering
+		\includegraphics[scale=.2]{EDA-dist-co}
+		\caption{Distribución de cantidad de monóxido de carbono}
+		\label{EDA-dist-co}
+	\end{figure}
+	
+\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Parámetro       & 2.5\% & 97.5\% \\ \midrule
+Media           & 512.354 & 512.743  \\
+Desv. Est.      & 194.472 & 194.747  \\ \bottomrule
+\end{tabular}
+\caption{Intervalo de confianza para la cantidad de monóxido de carbono}
+\label{EDA-confint-co}
+\end{table}
+ 
+
+\subsection{Ozono}
+	La cantidad de ozono sigue la distribución que se muestra en la Figura \ref{EDA-dist-ooo}, que es gaussiana. Su media es de 67.16 $\mu$g/$m^3$, mientras que su desviación típica es 16.31 $\mu$g/$m^3$. En la Tabla \ref{EDA-confint-ooo} se presentan los intervalos de confianza para la media y varianza de la medida de ozono en la muestra ($\alpha=0.05$). 
+		
+	\begin{figure} [!h]
+		\centering
+		\includegraphics[scale=.2]{EDA-dist-ooo}
+		\caption{Distribución de cantidad de ozono}
+		\label{EDA-dist-ooo}
+	\end{figure}
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Parámetro       & 2.5\% & 97.5\% \\ \midrule
+Media           & 67.142 & 67.174  \\
+Desv. Est.      & 16.294 & 16.317  \\ \bottomrule
+\end{tabular}
+\caption{Intervalo de confianza para la cantidad de ozono}
+\label{EDA-confint-ooo}
+\end{table}
+
+
+\subsection{Partículas en suspensión}
+	La cantidad de partículas en suspensión de tamaño inferior a 2.5 micras sigue la distribución que se muestra en la Figura \ref{EDA-dist-pm}, que no es gaussiana. Su media es de 5.63 $\mu$g/$m^3$, mientras que su desviación típica es 2.95 $\mu$g/$m^3$. En la Tabla \ref{EDA-confint-pm} se presentan los intervalos de confianza para la media y varianza de la medida de partículas en suspensión en la muestra ($\alpha=0.05$). 
+		
+	\begin{figure} [!h]
+		\centering
+		\includegraphics[scale=.2]{EDA-dist-pm}
+		\caption{Distribución de cantidad de partículas en suspensión}
+		\label{EDA-dist-pm}
+	\end{figure}
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Parámetro       & 2.5\% & 97.5\% \\ \midrule
+Media           & 5.623 & 5.629  \\
+Desv. Est.      & 2.945 & 2.950  \\ \bottomrule
+\end{tabular}
+\caption{Intervalo de confianza para la cantidad de partículas en suspensión}
+\label{EDA-confint-pm}
+\end{table}
+
+
+\newpage
+\subsection{Porcentaje de ocupación}
+Finalmente, se presenta la distribución del porcentaje de ocupación de los parquímetros, tanto gráficamente (Figura \ref{EDA-dist-ocup}) como con los intervalos de confianza para un 5\% de significación (Tabla \ref{EDA-confint-ocup}). La media del porcentaje de ocupación es de 18.45\%, mientras que la desviación típica es 16.10\%.  
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.2]{EDA-dist-ocup-new}
+		\caption{Distribución del porcentaje de ocupación medio de los parquímetros}
+		\label{EDA-dist-ocup}
+	\end{figure}
+
+La distribución no es gaussiana y está muy polarizada hacia los valores inferiores. Del mismo modo que en las variables anteriores, se puede comprobar que los intervalos de confianza son muy estrechos debido al gran número de muestras de que consta el dataset. 
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Parámetro       & 2.5\% & 97.5\% \\ \midrule
+Media (\%)      & 18.437 & 18.469  \\
+Desv. Est. (\%) & 16.086 & 16.108  \\ \bottomrule
+\end{tabular}
+\caption{Intervalo de confianza para el porcentaje de ocupación}
+\label{EDA-confint-ocup}
+\end{table}
+
+Por otro lado, tiene una varianza considerable, especialmente en relación con la media, como consecuencia de la variabilidad de la disponibilidad de plazas de aparcamiento. Sin embargo, la variabilidad de esta característica no es tan grande como habíamos visto para la variable de precipitaciones: su coeficiente de variación es del 87\%.
+
+
+\newpage
+\subsection{Análisis de correlaciones entre las covariables y el target}
+A continuación, se presenta un análisis de correlaciones entre las covariables y el target, que permitirá disponer de información más precisa y detallada sobre la serie. Además, debido a que muchos modelos espacio-temporales constan de una parte regresiva, se podrá utilizar el resultado obtenido para predecir con mejor precisión. 
+\smallbreak
+Para el análisis de correlaciones, dado que todas las variables númericas son continuas, se utiliza el coeficiente de correlación de Pearson, definido como 
+
+\[ r_{X_1X_2} = \dfrac{E[(X_1-\bar{x}_1)(X_2-\bar{x}_2)]}{s_{X_1}s_{X_2}}. \]
+
+La significación estadística de este valor se estudia mediante un test T (\textbf{PDTE poner referencia}), que determina si el valor calculado es significativamente distinto de cero. Para ello, se calcula el estadístico $T$,
+
+\[ T = \frac{r}{\sqrt{1-r^2}} \cdot \sqrt{N-2}, \]
+
+que se distribuye según una $t$ de Student de $N-2$ grados de libertad. El p-valor se calcula de forma bilateral, utilizando las tablas de la $t$ de Student, como la probabilidad de obtener un valor más extremo del estadístico $T$ que se ha calculado con la muestra dada. Es decir, 
+
+\[ p = \text{Prob}(\left|t\right| \geq \left|T\right|) \]
+
+Establecemos el nivel de significación ($\alpha$) en el 5\%, por lo que el p-valor deberá ser menor de 0.05 para que sea válido y el resultado tenga significación estadística. 
+\smallbreak
+Mantendremos la estructura original del test, tal y como está establecido en (\textbf{PDTE poner referencia}), pero debemos tener en cuenta que $N$ es muy grande, y por lo tanto:
+
+\begin{itemize}
+\item La $t$ de Student se podría aproximar a una distribución normal.
+\item Los resultados saldrán muy significativos, pues el valor de $T$ será muy elevado, situándose muy a la derecha o muy a la izquierda de la distribución $t$, quedando muy lejos del valor crítico definido por $\alpha=0.05$. 
+\end{itemize}
+
+Los resultados se presentan en la Tabla \ref{EDA-corr-target}, donde se muestra tanto el coeficiente de correlación de Pearson (r) como el p-valor asociado a cada uno de ellos. No hay evidencia de que haya correlación entre las covariables y el target. Además, esta conclusión estadísticamente es bastante significativa, pues todos los p-valores calculados son menores que el intervalo de significación establecido ($p<0.05$).
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Correlación con el porcentaje de ocupación & $r$ & $p$-valor \\ \midrule
+Temperatura máxima                         & 0.005& 2.79e-25 \\
+Temperatura mínima                         & 0.006 & 2.34e-29 \\
+Precipitación                            	 & -0.006 & 5.23e-35 \\
+Temperatura asfalto horaria                & 0.027 & 0.0 \\
+Temperatura ambiente horaria							 & 0.012 & 1.76e-120 \\
+Dióxido de nitrógeno 											 & -0.004 & 6.3e-12 \\
+Monóxido de carbono 											 & 0.003 & 4.13e-10\\
+Ozono 																		 & 0.010 & 5.23e-93\\
+Partículas en suspensión 									 & -0.001 & 1.4e-02\\
+\bottomrule
+\end{tabular}
+\caption{Correlaciones entre las covariables y el target}
+\label{EDA-corr-target}
+\end{table}
+
+\smallbreak
+Como se comentó anteriormente, todos los resultados son significativos porque la muestra es muy grande. Por eso, aunque los coeficientes de correlación están próximos a cero, son estadísticamente distintos de cero, lo que es lógico teniendo en cuenta el tamaño de la muestra.
+\smallbreak
+También hemos analizado la correlación del porcentaje de ocupación con las variables espaciales (latitud y longitud) y las variables temporales (mes, día de la semana, día del año) y los coeficientes de correlación también están próximos a cero.
+\smallbreak
+La conclusión, por lo tanto, es que no hay evidencias de un grado de correlación alto entre las covariables y el target. Esto podría dificultar el análisis de tipo regresivo, puesto que no hay relaciones lineales directas entre las variables presentadas y el porcentaje de ocupación. Este aspecto se tiene en cuenta a la hora de realizar la evaluación del mejor modelo de predicción espacio-temporal, pues algunos permiten incluir regresores. 
+
+
+\subsection{Análisis de correlaciones mutuas entre las covariables}
+En esta sección, se repite el análisis anterior, pero para estudiar las posibles correlaciones entre cada una de las covariables. De esta forma, se analiza la posible existencia de multicolinealidad, que pudiera influir en la parte regresiva de algunos de los modelos espacio-temporales. Por otro lado, se puede determinar si existen variables que están tan relacionadas que en realidad pertenecen a la misma distribución, con lo que debe tenerse en cuenta para eliminar alguna de ellas. Los resultados del análisis de correlaciones mutuas entre las covariables se muestran en la Tabla \ref{EDA-corr-covar} y en la Figura \ref{EDA-corr-matrix}.
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.3]{EDA-corr-matrix}
+		\caption{Matriz de correlación de las covariables}
+		\label{EDA-corr-matrix}
+	\end{figure}
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Correlación mutua & $r$ & $p$-valor \\ \midrule
+Temperatura máxima - Temperatura mínima 						& \textbf{0.879} & 0 \\
+Temperatura máxima - Precipitaciones    						& -0.273 & 0 \\
+Temperatura máxima - Temperatura asfalto 						& \textbf{0.873} & 0 \\
+Temperatura máxima - Temperatura ambiente horaria   & \textbf{0.901} & 0 \\
+Temperatura máxima - Dióxido de nitrógeno 					& 0.111 & 0 \\
+Temperatura máxima - Monóxido de carbono						& -0.164 & 0 \\
+Temperatura máxima - Ozono 													& 0.230 & 0 \\
+Temperatura máxima - Partículas en suspensión 			& -0.076 & 0 \\
+Temperatura mínima - Precipitaciones    						& -0.106 & 0 \\
+Temperatura mínima - Temperatura asfalto						& \textbf{0.795} & 0 \\
+Temperatura mínima - Temperatura ambiente horaria   & \textbf{0.867} & 0 \\
+Temperatura mínima - Dióxido de nitrógeno 					& 0.086 & 0 \\
+Temperatura mínima - Monóxido de carbono 						& -0.347 & 0 \\
+Temperatura mínima - Ozono 													& 0.047 & 0 \\
+Temperatura mínima - Partículas en suspensión 			& -0.319 & 0 \\
+Precipitaciones - Temperatura asfalto 							& -0.301 & 0 \\
+Precipitaciones - Temperatura ambiente horaria 			& -0.257 & 0 \\
+Precipitaciones - Dióxido de nitrógeno 							& -0.006 & 0 \\
+Precipitaciones - Monóxido de carbono 							& -0.025 & 0 \\
+Precipitaciones - Ozono 														& -0.082 & 0 \\
+Precipitaciones - Partículas en suspensión 					& -0.215 & 0 \\
+Temperatura asfalto - Temperatura ambiente horaria 	& \textbf{0.934} & 0 \\
+Temperatura asfalto - Dióxido de nitrógeno 					& -0.012 & 0 \\
+Temperatura asfalto - Monóxido de carbono 					& -0.237 & 0 \\
+Temperatura asfalto - Ozono 												& 0.215 & 0 \\
+Temperatura asfalto - Partículas en suspensión 			& -0.142 & 0 \\
+Temperatura ambiente horaria - Dióxido de nitrógeno & -0.034 & 0 \\
+Temperatura ambiente horaria - Monóxido de carbono  & -0.267 & 0 \\
+Temperatura ambiente horaria - Ozono 								& 0.149 & 0 \\
+Temperatura ambiente horaria - Partículas en suspensión & -0.173 & 0 \\
+Dióxido de nitrógeno - Monóxido de carbono 					& 0.525 & 0 \\
+Dióxido de nitrógeno - Ozono 												& 0.202 & 0 \\
+Dióxido de nitrógeno - Partículas en suspensión 		& 0.487 & 0 \\
+Monóxido de carbono - Ozono 												& 0.046 & 0 \\
+Monóxido de carbono - Partículas en suspensión 			& 0.671 & 0 \\
+Ozono - Partículas en suspensión 										& 0.018 & 0 \\
+\bottomrule
+\end{tabular}
+\caption{Correlaciones mutuas entre las covariables}
+\label{EDA-corr-covar}
+\end{table}
+
+\newpage
+De nuevo, debido al tamaño de la muestra, las conclusiones son muy significativas. Se puede observar que hay una correlación muy fuerte entre las cuatro variables de temperatura. Esta conclusión es lógica pues las cuatro variables forman parte de una misma información, si aumenta la temperatura media ambiente, por ejemplo en verano, suben tanto las temperaturas mínimas como las máximas (salvo casos extremos), y además con el mismo signo. Y la temperatura ambiente afecta directamente a la temperatura del asfalto. Sin embargo, las cuatro variables no provienen de la misma distribución estadística, pues su media es claramente diferente (algo menos entre la temperatura máxima y la temperatura media ambiente), y la muestra es suficientemente grande. Esta afirmación se demuestra mediante la aplicación del test de Kolmogorov-Smirnov (KS), que analiza las diferencias entre las dos funciones de distribución que se están comparando. Se calcula el estadístico $D$, como 
+
+\[ D = \max[F_1(x)-F_2(x)], \]
+
+donde $F_1$ y $F_2$ son las funciones de distribución de las dos variables bajo comparación. El resultado obtenido es que las funciones de distribución de las cuatro variables difieren en los valores de D que se muestran en la Tabla \ref{EDA-KS}, con una significación estadística altísima, de nuevo debido al tamaño de la muestra. 
+
+\begin{table}[!htb]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+Variables & $D$ & $p$-valor \\ \midrule
+Temperatura máxima - Temperatura mínima & 0.54 & 0 \\
+Temperatura máxima - Temperatura media asfalto & 0.11 & 0 \\
+Temperatura máxima - Temperatura media ambiente & 0.15 & 0 \\
+Temperatura mínima - Temperatura media asfalto & 0.54 & 0 \\
+Temperatura mínima - Temperatura media ambiente & 0.43 & 0\\
+Temperatura media asfalto - Temperatura media ambiente & 0.21 & 0 \\
+\bottomrule
+\end{tabular}
+\caption{Test de Kolmogorov-Smirnov para las variables de temperatura}
+\label{EDA-KS}
+\end{table}
+
+Los mismos resultados pueden observarse en la Figura \ref{EDA-CDF-new}, donde se aprecian que las diferencias máximas entre las funciones de distribución de la temperatura máxima, temperatura media ambiente y del asfalto son muy pequeñas (entre 0.1-0.2 aproximadamente). 
+ 
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.3]{EDA-CDF-new}
+		\caption{Funciones de distribución de las variables de temperaturas}
+		\label{EDA-CDF-new}
+	\end{figure}
+
+Este test se presenta únicamente como comprobación formal de lo que se comentó con anterioridad: la temperatura máxima y la mínima están muy relacionadas, pero no provienen de la misma distribución, por lo que tendrán impactos diferentes en el porcentaje de ocupación. Por ejemplo, es posible que las temperaturas mínimas no afecten del mismo modo a los desplazamientos y ocupación de los parquímetros en Seattle que las temperaturas máximas. 
+\smallbreak
+	
+	\section{Análisis descriptivo dinámico}
+	A continuación se presenta un análisis dinámico del dataset, donde se describen efectos y propiedades del mismo, pero en función del lugar y tiempo en el que se produjeron. Se realiza primero un estudio temporal, donde se relaciona la variable de ocupación (y la distribución de transacciones) con la temporalidad del fenómeno bajo estudio. Después, se analiza de forma geográfica, presentando las distribuciones de ocupación por localización (parquímetro). Por último, se explican cuestiones relativas a la frecuencia de actualización de los parquímetros, que es muy relevante a la hora de decidir qué parquímetros utilizar para realizar la predicción. 
+	
+	\subsection{Análisis temporal}
+	En primer lugar, en la Figura \ref{EDA-dist-tickets} se muestra una representación gráfica en la que aparece la distribución estadística de las transacciones (tickets) en función de las horas en las que se produjeron (inicio y fin). Cabe destacar que las horas centrales del día (11h-13h) son las de mayor actividad para el inicio del ticket, y para la hora de fin además de la última hora (19h) también destaca el rango entre las 13-15h.
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.45]{EDA-dist-tickets-ini}
+		\includegraphics[scale=.45]{EDA-dist-tickets-fin}
+		\caption{Distribución de la hora de inicio y de la hora de fin de las transacciones}
+		\label{EDA-dist-tickets}
+	\end{figure}	
+	
+	Continuando con el análisis, la Figura \ref{EDA-ocupacion-horas} presenta la distribución del porcentaje de ocupación de los parquímetros en función de la hora del día. Se observa que las horas centrales del día suelen constituir las horas más relevantes para el análisis.
+	
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{EDA-ocupacion-horas-new}
+		\caption{Distribución de la ocupación de los parquímetros en función de la hora del día}
+		\label{EDA-ocupacion-horas}
+	\end{figure}
+		
+	Dentro de una misma semana, tiende a haber mayor ocupación en los días finales de la semana (Jueves, etiquetado como 3, Viernes, etiquetado como 4, y Sábado, etiquetado como 5), según se representa en la Figura \ref{EDA-ocupacion-dia}. Es lógico que se obtenga este resultado, pues los días cercanos al fin de semana suelen llevar aparejados mayores desplazamientos. Nótese que el domingo no aparece representado por no estar activo el sistema de pago por aparcamiento en domingos y días festivos. 
+		
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{EDA-ocupacion-dia-new}
+		\caption{Distribución de la ocupación de los parquímetros en función del día de la semana}
+		\label{EDA-ocupacion-dia}
+	\end{figure}
+	
+	Si extendemos el análisis a los días dentro de un mes (Figura \ref{EDA-ocupacion-diames}), se observa que la distribución es relativamente uniforme: no se aprecia una diferencia significativa entre los días de principio de mes (días 1 a 7, etiquetados como 'begin'), los días de final de mes (días 25 a 31, etiquetados como 'end'), y el resto (etiquetados como 'rest'). Además, también se aprecia que la distribución por horas se mantiene tanto a lo largo de una semana como a lo largo de un mes, siempre observando ocupaciones mayores en las horas centrales del día. 
+	
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{EDA-ocupacion-diames-new}
+		\caption{Distribución de la ocupación de los parquímetros en función del día del mes}
+		\label{EDA-ocupacion-diames}
+	\end{figure}
+	
+	Y si consideramos un año completo, vemos que no hay gran diferencia entre los meses y se sigue manteniendo la tendencia horaria de mayores ocupaciones entre las 10 y las 14h. Se aprecia que en los meses de verano hay mayor ocupación que a lo largo del resto del año, posiblemente debido a la influencia de temperaturas más suaves, mientras que en las horas de ocupación mayor también destacan los meses de Febrero y Marzo (Figura \ref{EDA-ocupacion-mes}).
+	
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{EDA-ocupacion-mes-new}
+		\caption{Distribución de la ocupación de los parquímetros en función del mes}
+		\label{EDA-ocupacion-mes}
+	\end{figure}
+
+A continuación observamos la variabilidad de la distribución de ocupación para aquellos parquímetros con mayores porcentajes de ocupación en media que se presentan en la Figura \ref{EDA-dist-parq-new}: 
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.35]{EDA-dist-parq-new}
+		\caption{Distribución de la ocupación de los parquímetros con mayor porcentaje medio ($>35\%$)}
+		\label{EDA-dist-parq-new}
+	\end{figure}
+
+Y por último la distribución de ocupación para los 100 parquímetros con mayor número de transacciones:
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.35]{EDA-dist-top100-new}
+		\caption{Distribución de la ocupación de los 100 parquímetros con más transacciones}
+		\label{EDA-dist-top100-new}
+	\end{figure}
+
+	
+\subsection{Análisis espacial}
+En cuanto a la distribución espacial de la ocupación de los parquímetros teniendo en cuenta el distrito al que pertenecen, puede observarse en la Figura \ref{EDA-ocupacion-distrito} que es muy heterogénea. Hay parquímetros con una tasa de ocupación elevada durante gran parte del día, con picos altos en el rango de 18-19h, y parquímetros que apenas se llenan durante todo el día. 
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{EDA-ocupacion-distrito}
+		\caption{Distribución de la ocupación de los parquímetros según su distrito}
+		\label{EDA-ocupacion-distrito}
+	\end{figure}
+
+En la Figura \ref{EDA-distritos} puede observarse la ubicación de los parquímetros contenidos en la serie y agrupados por colores identificando los distintos distritos a los que pertenecen:
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.37]{EDA-distritos}
+		\caption{Mapa de los parquímetros por distritos}
+		\label{EDA-distritos}
+	\end{figure}
+
+			
+\subsection{Transacciones diarias por parquímetro}
+En el año 2016 tenemos 304 días hábiles para el uso de los parquímetros (sin domingos y festivos). Calculamos el número medio de transacciones por día para los 1110 parquímetros existentes en la serie y observamos que sólo para 217 parquímetros hay transacciones todos esos días hábiles. En la Figura \ref{EDA-box-tbd} vemos la distribución del número medio de transacciones por día. El 25\% de los parquímetros tiene en media menos de 1 transacción por hora, el 60\% de los parquímetros tiene en media menos de 2 transacciones por hora y sólo el 5\% de los parquímetros tiene más de 4 transacciones por hora. Tenemos por tanto parquímetros con alto número de transacciones que ven circular muchos vehículos por ellos durante el día junto a parquímetros que  prácticamente no tienen movimiento. Disponer de muchas transacciones da información sobre el fenómeno bajo estudio, por lo que seleccionaremos parquímetros de ese tipo que nos permitan realizar buenas generalizaciones.
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.5]{EDA-box-tbd}
+		\caption{Diagrama de caja asociado al número medio de transacciones diarias de los parquímetros}
+		\label{EDA-box-tbd}
+	\end{figure}	
+
+Tomando el parquímetro con id 12289, que de los 30 parquímetros seleccionados para la evaluación de los modelos de predicción es el que tiene menor número de valores de ocupación igual a 0, en la Figura \ref{EDA-parq12289-sem} se presenta la variación del porcentaje de ocupación en función del tiempo durante la primera semana del año y en la Figura \ref{EDA-parq12289-mes} durante el primer mes: 
+	
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{EDA-parq12289-sem}
+		\caption{Porcentaje de ocupación del parquímetro 12289 durante la primera semana del año}
+		\label{EDA-parq12289-sem}
+	\end{figure}	
+
+	\begin{center}
+		\includegraphics[scale=.4]{EDA-parq12289-mes}
+		\captionof{figure}{Porcentaje de ocupación del parquímetro 12289 durante el mes de Enero}
+		\label{EDA-parq12289-mes}
+	\end{center}	
+	
+Se observa que no hay una estacionalidad clara en las gráficas, por lo que a priori parece no es sencillo que los modelos consigan realizar una predicción muy exacta. 
+	
+\chapter{Descripción y aplicación de modelos predictivos}
+	\section{Introducción} \cite{MODone}
+Que un hecho o cantidad sea predecible depende de varios factores principales:
+		\begin{itemize}
+		\item cuántos datos hay disponibles
+		\item cómo de bien entendemos los factores que contribuyen al hecho o cantidad
+		\item si las predicciones pueden afectar al resultado de lo que se intenta predecir
+		\end{itemize}
+Buenas predicciones son las que capturan los patrones y las relaciones que existen en los datos históricos pero no replican los eventos pasados que no volverán a ocurrir.
+Todos los entornos son cambiantes, pero un buen modelo de predicción capta el modo en que las cosas cambian, asumiendo habitualmente que el modo en que el entorno cambia continuará en el futuro.
+\smallbreak
+Los métodos de predicción de series temporales más simples son aquellos que usan información sólo de la variable que se predice, sin tener en cuenta los factores externos que pueden afectar a su comportamiento.
+\smallbreak
+\underline{Predicciones ex-ante versus post-ante en modelos de regresión de series temporales:}
+Se distinguen dos tipos de predicción dependiendo de la información que se conoce a la hora de calcular la predicción:
+		\begin{itemize}
+		\item Ex-ante: utilizan sólo la información que se conoce con anterioridad. En modelos con regresores externos se requiere disponer de predicciones de los regresores.
+		\item Ex-post: utilizan información de los predictores externos posteriores al momento de la predicción. En estos casos las predicciones no son válidas salvo para estudiar el comportamiento de los modelos de predicción en relación a los regresores.
+		\end{itemize}
+\smallbreak
+\underline{Transformación logarítmica de la serie:}
+La transformación logarítmica es popular en análisis de series temporales porque estabiliza la varianza, aunque no por ello está asegurado que se mejoren las predicciones. En nuestro caso compararemos el rendimiento en la predicción de los modelos considerando la serie original y la serie transformada logarítmicamente.
+
+	\section{Estacionalidad múltiple: modelos considerados} \cite{MODone} \cite{MODtwo}
+Una serie temporal presenta efectos estacionales si el comportamiento de la serie es parecido en ciertos tramos de tiempo periódicos en el tiempo.  Una serie con datos horarios como la nuestra suele tener típicamente 3 tipos de estacionalidad: diaria, semanal y anual. Si acotamos el análisis al primer trimestre para que nuestros equipos informáticos puedan realizar los cálculos en plazos de tiempo razonables, tendríamos que nuestra serie tiene dos estacionalidades, diaria y semanal, con la particularidad de que el periodo diario está acotado a 12 horas y el periodo semanal a 6 días por los horarios de funcionamiento de los parquímetros.
+Para tratar con este tipo de series en los que hay varios tipos de estacionalidad, se utiliza la clase \textit{msts} de R que nos permite especificar todas las frecuencias que son relevantes e incluso admite frecuencias no enteras.
+\smallbreak
+		\subsection{Modelo auto-arima}
+El modelo \textit{auto-arima} ajusta la serie combinando valores de p, d y q y selecciona el modelo \textit{ARIMA} que tiene el menor estadístico AIC, que sería el mejor modelo \textit{ARIMA}. El estadístico que utilizamos es el AIC corregido.
+Hemos querido probar si la predicción mejoraba si establecíamos un lambda distinto al NULL que viene por defecto. Hemos probado lambda = ``auto`` para que se seleccione automáticamente una transformación BoxCox.
+Las transformaciones BoxCox se basan en la siguiente función para $\lambda \neq 0$:
+
+	\[
+	f_\lambda(x)  = \frac{x^\lambda -1}{\lambda}
+	\] 
+\smallbreak
+Si $\lambda$ = 0 entonces la función sería:
+\smallbreak
+	\[
+	f_0(x)  = log(x)
+	\]
+\smallbreak
+Para efectuar esta prueba hemos seleccionado el element key que menos ceros tiene de ocupación, el 12289 y hemos acotado el análisis al primer trimestre. Los resultados del MAE obtenido son los siguientes:
+\smallbreak
+		
+		\begin{table}[!htb]
+		\centering
+		\begin{tabular}{@{}lll@{}}
+		\toprule
+		Min.       & 7.919  \\ 
+		1st Qu.    & 11.075  \\
+		Median     & 13.819  \\
+		Mean       & 17.521  \\
+		3rd Qu.    & 17.450  \\ 
+		Max.			 & 52.333 \\ \bottomrule
+		\end{tabular}
+		\end{table}
+		
+\smallbreak
+En contraposición con el que obteníamos dejando lambda=NULL:
+
+		\begin{table}[!htb]
+		\centering
+		\begin{tabular}{@{}lll@{}}
+		\toprule
+		Min.       & 7.399  \\ 
+		1st Qu.    & 10.884  \\
+		Median     & 12.916  \\
+		Mean       & 13.122  \\
+		3rd Qu.    & 15.334  \\ 
+		Max.			 & 19.947 \\ \bottomrule
+		\end{tabular}
+		\end{table}
+		
+\smallbreak
+\newpage
+El MAE sale por tanto perjudicado y ésta es la razón por la que hemos optado por dejar el valor por defecto y no proceder a ninguna transformación BoxCox en este punto.
+Seleccionamos seasonal=TRUE para ser coherentes con la elección del modelo multiseasonal de msts.
+\smallbreak
+También hemos querido estudiar cómo se comporta un modelo que incluya \textit{regresores} en el modelo \textit{auto.arima}, por lo que los hemos definido en ``xreg`` y hemos seleccionado únicamente tres: la temperatura de la carretera, los días de la semana y la temperatura mínima. Esta selección no es aleatoria, y es que hemos querido seguir los resultados obtenidos en el apartado de análisis exploratorio de los datos (EDA). ``Xreg`` tiene que tener las mismas filas que la serie temporal, pero esto no es un obstáculo pues una vez que tenemos estos regresores seleccionados, los incluimos en la creación del modelo.
+Le aplicamos la función estrella ``forecast`` en la que nos encontramos con un problema, explicado en la documentación de la función; y es que cuando a un modelo creado con \textit{arima} se le especifican \textit{regresores}, la función forecast ignorará el periodo de predicción (h). Lo que nos pasa entonces es que forecast entiende que tiene que predecir tantos periodos como filas tenga el dataset, lo cual no nos serviría para nuestro objetivo de comparar los resultados que obtengamos del MAE con los resultados de otros modelos.
+Por ello, la solución a la que hemos llegado es que el periodo en que se tenían en cuenta los regresores para predecir sería precisamente el de la predicción, poniendo entonces los datos de los regresores de las 12 horas siguientes a nuestro train. Esta no es la solución óptima, pero era la única solución para poder incluir los regresores y que se nos respetara nuestro periodo de predicción. Tendremos este pequeño detalle en cuenta a la hora de valorar esta predicción.
+\smallbreak
+	\subsection{Modelo de medias móviles}
+La base del modelo de \textit{medias móviles (Moving-Average)} es que asume que las desviaciones actuales de la media dependen de las desviaciones pasadas. Consiste en la media de valores consecutivos en distintos periodos de tiempo.
+El orden que se le fija a la media móvil determinará la desviación de la estimación y, cuanto más alto sea este valor, más homogénea será la desviación.
+Nosotros hemos fijado el orden en 3, lo que significa que para la predicción del periodo n+1, el modelo tendrá en cuenta los valores de n, los de n+1 y los de n+2, calculando la media de ellos.
+\smallbreak
+	\subsection{Modelo STL}
+\textit{STL} es un modelo versátil y robusto para descomponer series temporales. \textit{STL} es un acrónimo de \textit{"Seasonal and Trend decomposition using Loess"}, siendo \textit{Loess} un método de estimación de relaciones no lineales.
+\textit{STL} tiene varias ventajas sobre otros métodos clásicos de descomposición:
+	\begin{itemize}
+	\item maneja cualquier tipo de estacionalidad, no sólo mensual o trimestral
+	\item la componente de estacionalidad puede variar con el tiempo
+	\item es robusto frente a outliers (valores atípicos) para las estimaciones de tendencia y estacionalidad aunque estos outliers afectarán a la componente residual de la serie
+	\end{itemize}
+	\subsection{Modelo MSTL}
+Utilizamos el modelo \textit{MSTL} que es una variación de \textit{STL} para series con estacionalidad múltiple. Utilizando la función \textit{mstl} de R (también específica para series con estacionalidad múltiple), sobre la serie construida con la función \textit{msts}, obtenemos las gráficas de las dos estacionalidades indicadas (diaria y semanal), la tendencia (que se observa evolutiva) y el componente residual.
+\smallbreak
+	\subsection{Modelos BATS y TBATS}
+\textit{BATS} es otro modelo cuyo acrónimo destaca las características más relevantes:
+	\begin{itemize}
+	\item B: transformaciones Box-Cox (que arreglan problemas de normalidad y heterocedasticidad, es decir, no homogeneidad de varianzas)
+	\item A: errores ARMA (modelo de medias móviles autoregresivos para la estimación del componente residual de la serie)
+	\item T: Tendencia
+	\item S: estacionalidad (Seasonality)
+	\end{itemize}
+Y \textit{TBATS} es un modelo lanzado como BATS en 2011 y añade regresores Trigonométricos para modelar múltiples estacionalidades.
+Los modelos \textit{BATS} y \textit{TBATS} son métodos de descomposición de una serie temporal que permiten que sus múltiples estacionalidades se incorporen simultáneamente y que cambien lentamente con el tiempo. Cada componente de la serie se estima explícitamente y se mide estadísticamente. Después cada componente estimado se recombina para realizar la predicción final. 
+Un par de inconvenientes de los modelos \textit{BATS} y \textit{TBATS} es su lentitud, especialmente con series largas, y que los intervalos de confianza para la predicción suelen ser demasiado amplios. 
+\smallbreak
+	\subsection{Modelo de Holt-Winters}
+El modelo de \textit{Holt-Winters} computa el filtrado de \textit{Holt-Winters} de una serie temporal dada, que se fundamenta en la estacionalidad. Este modelo tiene dos variaciones, por una parte la aditiva y por la otra la multiplicativa. Se prefiere la aditiva cuando las variaciones estacionales son en general constantes a lo largo de la serie, mientras que se escogerá la multiplicativa cuando las variaciones estacionales cambien proporcionalmente según el nivel de la serie.
+\smallbreak
+	\subsection{Modelo de DSHW}
+\textit{DSHW (Double Seasonal Holt-Winters)} es un método de 1960 y como su nombre indica es una variación del modelo \textit{Holt-Winters} para series con doble estacionalidad.
+	\smallbreak
+	\subsection{Modelo BSTS} \cite{MODthree} \cite{MODfour} \cite{MODfive} \cite{MODsix} \cite{MODseven}
+	El modelo \textit{BSTS} de acuerdo a sus iniciales (Bayesian Structured Time Series) se puede explicar:
+	\begin{itemize}
+	\item \underline{Time series}. Se usan principalmente para el pronóstico, aunque los modelos de espacio de estado, para los cuales BSTS es solo una extensión, se han usado tradicionalmente en los filtros activos de ingeniería, y actualmente se usan en una variedad de aplicaciones.
+	\smallbreak
+	\textbf{Modelos de espacio de estado}: Metodología de modelado en la que el sistema se describe como la combinación de un vector de estado y un vector de observación, ambas series de tiempo. La relación entre el estado y la observación está descrita por el modelo de espacio de estado; el objetivo es inferir las propiedades del estado, que está oculto, de las observaciones disponibles en el pasado. Las previsiones se producen a partir de los estados futuros estimados.
+	\item \underline{Estructural}. Significa que BSTS proporciona un enfoque estructural para el modelado, en el que hay disponible un kit de componentes para capturar diferentes aspectos de la serie; la arquitectura del modelo puede incluir o excluir cualquiera de esos componentes.
+	\item \underline{Bayesiana}. Significa que la implementación utilizada para esta propuesta tiene un enfoque bayesiano. Esto no significa que uno tenga que "convertirse" en estadísticas bayesianas. De manera pragmática, tiene 2 consecuencias principales, 
+	\begin{enumerate}
+		\item  todas las salidas del modelo vendrán en una distribución con un intervalo de certeza (y en realidad todos los parámetros dentro del modelo tendrán una distribución), y 
+		\item  es posible para expresar el conocimiento previo sobre la serie objetivo a través de los priors bayesianos (que pueden considerarse como hiperparámetros del modelo)
+	\end{enumerate}
+	\smallbreak
+	En sus diferentes formas (modelos de espacio de estado, filtros de Kalman), los BSTS se han utilizado "tradicionalmente" (es decir, desde los años 60), todavía están en uso, ya que son muy adecuados para algunos escenarios. No están tan comúnmente cubiertos en los cursos y recursos en línea, tutoriales, etc., y son un poco más difíciles de usar en comparación con otros modelos de aprendizaje automático; sin embargo, hay una biblioteca de código abierto de muy alta calidad disponible en R, razonablemente directa en su uso y bien documentada.
+	\item \underline{Componentes estructurales}. 
+	\smallbreak
+	BSTS proporciona un kit de componentes que se pueden usar para modelar la serie para predecir. Estos componentes capturarán diferentes aspectos de la serie, y se pueden agregar o eliminar según las necesidades, como en un juego de construcción. En la descomposición clásica, se clasifican aproximadamente como:
+	\[
+	y_t  = \underbrace{\mu_t}_{{trend}} + \underbrace{\gamma_t}_{{seasonal}} + \underbrace{\beta^T x_t}_{{regression}} + \epsilon_t
+	\]
+	\smallbreak
+	\[
+	\mu_t = \mu_{t-1} + \delta_{t-1} + u_t
+	\]
+	\smallbreak
+	\[
+	\delta = \delta_{t-1} + v_t
+	\]
+	\smallbreak
+	\[
+	\gamma_t = - \displaystyle\sum_{s=1}^{S-1} \gamma_{t-s} + w_t
+	\]
+		\begin{itemize}
+		\item Componentes trend, que capturan los aspectos de tendencia de la serie
+		\item Componentes seasonal, que captan los aspectos periódicos de la serie
+		\item Componentes regression, que capturan la influencia de las variables explicativas (es decir, variables externas a la serie para predecir que proporcionan cierta información a la predicción)
+		\end{itemize}
+	El kit completo de componentes se describe en la descripción de la biblioteca BSTS. \cite{MODeight}
+
+	\item \underline{Breve descripción del funcionamiento de BSTS}
+	\smallbreak
+	BSTS realiza dos operaciones principales: filtrado y suavizado (filtering and smoothing).
+		\begin{itemize}
+		\item El filtrado proporciona una predicción one-step de la serie, dados todos los datos disponibles hasta el momento; es decir, en una serie mensual como el objetivo, proporciona la predicción para el próximo mes, dados todos los datos disponibles hasta el mes actual.
+		\item El suavizado corrige el estado del modelo cuando una nueva observación de la serie está disponible; es decir, el modelo compara la predicción con la observación y utiliza el error para corregir su propio estado.
+		\end{itemize}
+		Al entrenar el modelo, la librería revisa internamente todos los datos periodo a periodo, ejecutando sucesivas operaciones de filtrado y suavizado, hasta el último periodo de tiempo disponible.
+		\smallbreak
+		Es importante tener en cuenta que estas operaciones de filtrado consecutivas se vuelven cada vez menos precisas para un horizonte creciente de la predicción; Las predicciones no serán muy útiles para los últimos periodos del horizonte de predicción, si es muy amplio. Es difícil definir un ancho óptimo del horizonte, dependiendo de las características de la serie y la complejidad del modelo.
+	\item \underline{Enfoque bayesiano}
+	\smallbreak
+	En cada uno de los componentes de un modelo BSTS, es posible configurar priors Bayesianos que capturan información previa sobre la serie objetivo para predecir. A primera vista, no parece fácil para el analista traducir el conocimiento del negocio sobre la serie y el dominio a un sigma prior, por ejemplo. Sin embargo, debería ser posible para un analista de negocios (quien quizás sepa qué es la variación, pero de todos modos no tiene idea de lo que es un sigma prior), para averiguar la información necesaria.
+	\smallbreak
+		Continuemos con esta explicación para el componente de tendencia más simple disponible, el componente de nivel local (LocalLevel), que es un componente de tendencia. En cuanto a la documentación en el paquete R, tiene 2 priors:
+		\begin{itemize}
+		\item initial.state.prior: describe la distribución anterior del vector de estado inicial (en el momento 1)
+		\item sigma.prior: describe la distribución anterior para la desviación estándar de la aleatoria caminar incrementos
+		\end{itemize}
+		Se puede omitir initial.state.prior, en particular si el analista no está seguro de cuál es el vector de estado. En la mayoría de las situaciones prácticas, el modelo calcula correctamente el valor inicial del vector de estado sin necesidad de agregar información previa.
+		\smallbreak
+		¿Qué pasa con el sigma.prior? El componente a nivel local describe la tendencia de una manera bastante simple; se puede ver como un suavizado exponencial de los valores previos de la serie. Por lo tanto, el modelo predice el valor del siguiente paso (es decir, para la serie objetivo) como un suavizado de los valores pasados. Lo anterior se puede ver entonces como un parámetro para este suavizado: determina qué tan ajustado es el componente de tendencia que seguirá los últimos valores de la serie. Un valor alto de sigma indica que el componente seguirá la serie con firmeza, y un valor bajo indica lo contrario.
+		\smallbreak
+		Cuando no se tiene claro los priors se puede hacer validación cruzada con las desventajas que esto conlleva (tiempo excesivo, soluciones buenas pero quizás no las mejores etc.)
+	\item \underline{Aplicación de BSTS al TFM}
+	\smallbreak
+	BSTS aporta los siguientes componentes:
+		\begin{itemize}
+		\item Componentes trend
+			\begin{itemize}
+			\item AddAr
+			\item AddAutoAr
+			\item AddLocalLevel
+			\item AddLocalLinearTrend
+			\item AddStudentLocalLinearTrend
+			\item AddGeneralizedLocalLinearTrend
+			\end{itemize}
+			Uno puede pensar que un linear trend como una relación de regresión entre la serie y el tiempo. Para un cambio en el tiempo $\Delta$, la respuesta debería cambiar $\beta_1 * \Delta_1$.
+		\item Seasonal components. Los componentes estacionales capturan la periodicidad en los datos. Las opciones incluyen:
+			\begin{itemize}
+			\item AddTrig
+			\item AddSeasonal
+			\item AddNamedHolidays
+			\item AddFixedDateHoliday
+			\item AddNthWeekdayInMonthHoliday
+			\item AddLastWeekdayInMonthHoliday
+			\end{itemize}
+		\end{itemize}
+		Se han seleccionado \textbf{AddLocalLevel}, \textbf{AddAr} , \textbf{AddLocalLinearTrend} para establecer comparativas aun sabiendo que algunos no son los más adecuados basándose en la respuesta del propio Scott: \cite{MODnine}
+		\smallbreak
+		\textit{``El modelo \textbf{LocalLinearTrend} es muy flexible, pero esta flexibilidad puede aparecer como una varianza no deseada en los pronósticos a largo plazo. Hay algunos otros modelos de tendencias que contienen un poco más de estructura. \textbf{GeneralizedLocalLinearTrend} (perdón por el nombre no descriptivo) asume que el componente "slope" de la tendencia es un proceso AR1 en lugar de un random walk. Es mi opción por defecto si quiero pronosticar en el futuro. La mayoría de las variaciones de tus series de tiempo parecen provenir de la estacionalidad, por lo que puedes probar \textbf{AddLocalLevel} o incluso \textbf{AddAr} en lugar de \textbf{AddLocalLinearTrend}``}
+		\smallbreak
+		Además, por cada componente se realiza su aplicación sin regresores y con regresores y se establecen comparativas entre los diferentes métodos.
+	\item \underline{Local linear trend state component}
+	\smallbreak
+	Agrega un modelo de tendencia lineal local a una especificación de estado. El modelo de tendencia lineal local asume que tanto la media como la pendiente de la tendencia siguen random walk. La ecuación para la media es:
+	\smallbreak
+	\[
+	\mu_{t+1} = \mu_t + \delta_t + rnorm(1,0,sigma.level)
+	\]
+	\smallbreak
+	La pendiente es:
+	\[
+	\delta_{t+1} = \delta_t + rnorm(1,0,sigma.slope)
+	\]
+	La distribución anterior se encuentra en el nivel de desviación estándar sigma.level y la pendiente de desviación estándar sigma.slope.
+	\item \underline{AR(p) state component}
+	\smallbreak
+	Agrega un componente AR(p) a una especificación de estado.
+	\smallbreak
+	El modelo es:
+	\[
+	\alpha_t = \phi_1 * \alpha_{t-1} + ... + \phi_p * \alpha_{t-p} + \epsilon_{t-1}, con \epsilon_{t-1} \sim N(0, \sigma^2)
+	\]
+	\smallbreak
+	El estado consiste en los últimos retrasos del $\alpha$. La matriz de transición de estado tiene $\phi$ en su primera fila, unos a lo largo de su primer subdiagonal y ceros en otros lugares. La matriz de varianza del estado tiene $\sigma^2$ en su esquina superior izquierda y es cero en otras partes. La matriz de observación tiene 1 en su primer elemento y es cero en caso contrario.
+	\item \underline{Local level trend state component}
+	Agrega un modelo de nivel local a una especificación de estado. El modelo a nivel local asume que la tendencia es un random walk:
+	\smallbreak
+	\[
+	\alpha_{t+1} = \alpha_t + rnorm(1,0,\sigma)
+	\]
+	\smallbreak
+	
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{MOD-BSTS-codigoR}
+		\caption{Ejemplo de código R donde se aplica por parquímetro los diferentes componentes y comparativas}
+		\label{MOD-BSTS-codigoR}
+	\end{figure}
+	
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{MOD-BSTS-grafica}
+		\caption{Ejemplo de comparativa de tres modelos con componentes distintos para un parquímetro}
+		\label{MOD-BSTS-grafica}
+	\end{figure}
+	\end{itemize}
+\printbibliography	
+
+\end{document} 
