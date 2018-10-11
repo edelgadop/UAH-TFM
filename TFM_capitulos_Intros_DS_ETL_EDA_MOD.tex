@@ -933,37 +933,42 @@ Tomando el parquímetro con id 12289, que de los 30 parquímetros seleccionados pa
 	
 Se observa que no hay una estacionalidad clara en las gráficas, por lo que a priori parece no es sencillo que los modelos consigan realizar una predicción muy exacta. 
 	
+	
+\chapter{Importancia de las covariables}
+
+	
 \chapter{Descripción y aplicación de modelos predictivos}
-	\section{Introducción} \cite{MODone}
-Que un hecho o cantidad sea predecible depende de varios factores principales:
+Que un hecho o cantidad sea predecible depende de varios factores principales \cite{MODone}:
 		\begin{itemize}
 		\item cuántos datos hay disponibles
 		\item cómo de bien entendemos los factores que contribuyen al hecho o cantidad
 		\item si las predicciones pueden afectar al resultado de lo que se intenta predecir
 		\end{itemize}
-Buenas predicciones son las que capturan los patrones y las relaciones que existen en los datos históricos pero no replican los eventos pasados que no volverán a ocurrir.
+\smallbreak		
+		Buenas predicciones son las que capturan los patrones y las relaciones que existen en los datos históricos pero no replican los eventos pasados que no volverán a ocurrir.
 Todos los entornos son cambiantes, pero un buen modelo de predicción capta el modo en que las cosas cambian, asumiendo habitualmente que el modo en que el entorno cambia continuará en el futuro.
 \smallbreak
 Los métodos de predicción de series temporales más simples son aquellos que usan información sólo de la variable que se predice, sin tener en cuenta los factores externos que pueden afectar a su comportamiento.
+En aquellos métodos más avanzados que lo permiten, hemos considerado también la opción de incluir variables adicionales externas como regresores, seleccionando tres variables: la temperatura del asfalto y la temperatura mínima, porque son dos de las variables destacadas por el análisis de importancia comentado en el capítulo anterior, y añadimos el día de la semana como variable \textit{dummie}.
+Y adicionalmente hemos considerado la transformación logarítmica de la serie para comparar el rendimiento en la predicción de los modelos. La transformación logarítmica es popular en análisis de series temporales porque estabiliza la varianza, aunque no por ello está asegurado que se mejoren las predicciones. En nuestro caso hemos comparado el rendimiento en la predicción de algunos de los modelos considerando la serie original y la serie transformada logarítmicamente.
 \smallbreak
-\underline{Predicciones ex-ante versus post-ante en modelos de regresión de series temporales:}
-Se distinguen dos tipos de predicción dependiendo de la información que se conoce a la hora de calcular la predicción:
-		\begin{itemize}
-		\item Ex-ante: utilizan sólo la información que se conoce con anterioridad. En modelos con regresores externos se requiere disponer de predicciones de los regresores.
-		\item Ex-post: utilizan información de los predictores externos posteriores al momento de la predicción. En estos casos las predicciones no son válidas salvo para estudiar el comportamiento de los modelos de predicción en relación a los regresores.
-		\end{itemize}
+\underline{Estacionalidad múltiple}: Una serie temporal presenta efectos estacionales si el comportamiento de la serie es parecido en ciertos tramos de tiempo periódicos en el tiempo.  Una serie con datos horarios como la nuestra suele tener típicamente 3 tipos de estacionalidad: diaria, semanal y anual. Hemos acotado el análisis al primer trimestre del año 2016 para que nuestros equipos informáticos puedan realizar los cálculos en plazos de tiempo razonables, por lo que nuestra serie tiene dos estacionalidades, diaria y semanal, con la particularidad de que el periodo diario está acotado a 12 horas y el periodo semanal a 6 días, por los horarios de funcionamiento de los parquímetros.
+Para tratar con este tipo de series en los que hay varios tipos de estacionalidad, utilizamos la clase \textit{msts} de R que nos permite especificar todas las frecuencias que son relevantes e incluso admite frecuencias no enteras.
 \smallbreak
-\underline{Transformación logarítmica de la serie:}
-La transformación logarítmica es popular en análisis de series temporales porque estabiliza la varianza, aunque no por ello está asegurado que se mejoren las predicciones. En nuestro caso compararemos el rendimiento en la predicción de los modelos considerando la serie original y la serie transformada logarítmicamente.
+En la Figura \ref{MOD-msts1037-37177} se muestra para dos parquímetros distintos el desglose de su serie, acotada temporalmente al primer trimestre del año, con las dos estacionalidades mencionadas (diaria y semanal). Se observa en ambos casos una periodicidad dinámica y evolutiva en el comportamiento de las dos gráficas de estacionalidad y también en la de tendencia. Destacamos también la diferencia de comportamiento de la serie entre los dos parquímetros seleccionados al azar y que se puede intuir a partir de las gráficas que será complejo conseguir alcanzar unas buenas aproximaciones en las predicciones.
 
-	\section{Estacionalidad múltiple: modelos considerados} \cite{MODone} \cite{MODtwo}
-Una serie temporal presenta efectos estacionales si el comportamiento de la serie es parecido en ciertos tramos de tiempo periódicos en el tiempo.  Una serie con datos horarios como la nuestra suele tener típicamente 3 tipos de estacionalidad: diaria, semanal y anual. Si acotamos el análisis al primer trimestre para que nuestros equipos informáticos puedan realizar los cálculos en plazos de tiempo razonables, tendríamos que nuestra serie tiene dos estacionalidades, diaria y semanal, con la particularidad de que el periodo diario está acotado a 12 horas y el periodo semanal a 6 días por los horarios de funcionamiento de los parquímetros.
-Para tratar con este tipo de series en los que hay varios tipos de estacionalidad, se utiliza la clase \textit{msts} de R que nos permite especificar todas las frecuencias que son relevantes e incluso admite frecuencias no enteras.
-\smallbreak
-		\subsection{Modelo auto-arima}
-El modelo \textit{auto-arima} ajusta la serie combinando valores de p, d y q y selecciona el modelo \textit{ARIMA} que tiene el menor estadístico AIC, que sería el mejor modelo \textit{ARIMA}. El estadístico que utilizamos es el AIC corregido.
-Hemos querido probar si la predicción mejoraba si establecíamos un lambda distinto al NULL que viene por defecto. Hemos probado lambda = ``auto`` para que se seleccione automáticamente una transformación BoxCox.
-Las transformaciones BoxCox se basan en la siguiente función para $\lambda \neq 0$:
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.37]{MOD-msts1037-37177}
+		\caption{Doble estacionalidad de la serie para dos parquímetros distintos (ids 1037 y 37177)}
+		\label{MOD-msts1037-37177}
+	\end{figure}
+
+\section{Modelos considerados}
+\subsection{Auto-arima}
+\cite{MODtwo} El modelo \textit{auto.arima} ajusta la serie combinando valores de p, d y q y selecciona el mejor modelo \textit{ARIMA} que tiene el menor estadístico AIC corregido.
+Hemos comprobado si la predicción mejoraba estableciendo un lambda distinto al valor NULL por defecto, definiendo \textit{lambda = ``auto``} para que se seleccione automáticamente una transformación Box-Cox.
+Las transformaciones Box-Cox se basan en la siguiente función para $\lambda \neq 0$:
 
 	\[
 	f_\lambda(x)  = \frac{x^\lambda -1}{\lambda}
@@ -974,8 +979,9 @@ Si $\lambda$ = 0 entonces la función sería:
 	\[
 	f_0(x)  = log(x)
 	\]
+
 \smallbreak
-Para efectuar esta prueba hemos seleccionado el element key que menos ceros tiene de ocupación, el 12289 y hemos acotado el análisis al primer trimestre. Los resultados del MAE obtenido son los siguientes:
+Para efectuar esta prueba hemos seleccionado el element key cuya serie tiene menos valores igual a 0 de porcentaje de ocupación, id 12289, y hemos acotado el análisis al primer trimestre. Los resultados del MAE obtenido son los siguientes:
 \smallbreak
 		
 		\begin{table}[!htb]
@@ -1007,66 +1013,68 @@ En contraposición con el que obteníamos dejando lambda=NULL:
 		\end{tabular}
 		\end{table}
 		
+El MAE empeora por lo que optamos por dejar el valor por defecto y no proceder a ninguna transformación Box-Cox en este punto. Y seleccionamos \textit{seasonal=TRUE} porque tenemos una serie multiestacional definida con \textit{msts}.
 \smallbreak
-\newpage
-El MAE sale por tanto perjudicado y ésta es la razón por la que hemos optado por dejar el valor por defecto y no proceder a ninguna transformación BoxCox en este punto.
-Seleccionamos seasonal=TRUE para ser coherentes con la elección del modelo multiseasonal de msts.
+El modelo \textit{auto.arima} permite incluir variables externas como regresores, por lo que hemos utilizado las 3 variables antes mencionadas (temperatura del asfalto, temperatura mínima y día de la semana).
+Al aplicar la función predictiva \textit{forecast} nos hemos encontrado con un problema explicado en la documentación de la función; cuando a un modelo creado con \textit{arima} se le especifican regresores, la función \textit{forecast} ignora el periodo de predicción (h=12 horas siguientes), por lo que consideramos la aplicación de un tipo de predicción conocida como \textit{ex-post}, ya que utilizamos información de los predictores externos en instantes de tiempo posteriores al momento de la predicción. En estos casos las predicciones no son válidas por sí mismas pero si son útiles como en nuestro caso para estudiar el comportamiento de los modelos de predicción en relación a los regresores.
 \smallbreak
-También hemos querido estudiar cómo se comporta un modelo que incluya \textit{regresores} en el modelo \textit{auto.arima}, por lo que los hemos definido en ``xreg`` y hemos seleccionado únicamente tres: la temperatura de la carretera, los días de la semana y la temperatura mínima. Esta selección no es aleatoria, y es que hemos querido seguir los resultados obtenidos en el apartado de análisis exploratorio de los datos (EDA). ``Xreg`` tiene que tener las mismas filas que la serie temporal, pero esto no es un obstáculo pues una vez que tenemos estos regresores seleccionados, los incluimos en la creación del modelo.
-Le aplicamos la función estrella ``forecast`` en la que nos encontramos con un problema, explicado en la documentación de la función; y es que cuando a un modelo creado con \textit{arima} se le especifican \textit{regresores}, la función forecast ignorará el periodo de predicción (h). Lo que nos pasa entonces es que forecast entiende que tiene que predecir tantos periodos como filas tenga el dataset, lo cual no nos serviría para nuestro objetivo de comparar los resultados que obtengamos del MAE con los resultados de otros modelos.
-Por ello, la solución a la que hemos llegado es que el periodo en que se tenían en cuenta los regresores para predecir sería precisamente el de la predicción, poniendo entonces los datos de los regresores de las 12 horas siguientes a nuestro train. Esta no es la solución óptima, pero era la única solución para poder incluir los regresores y que se nos respetara nuestro periodo de predicción. Tendremos este pequeño detalle en cuenta a la hora de valorar esta predicción.
-\smallbreak
-	\subsection{Modelo de medias móviles}
-La base del modelo de \textit{medias móviles (Moving-Average)} es que asume que las desviaciones actuales de la media dependen de las desviaciones pasadas. Consiste en la media de valores consecutivos en distintos periodos de tiempo.
+Además de comparar los modelos \textit{auto.arima} con y sin regresores para la serie original, hemos considerado la transformación logarítmica de la serie también en ambos casos, por lo que tenemos un total de 4 modelos \textit{auto.arima} por cada parquímetro. 
+
+	\subsection{Medias Móviles}
+La base del modelo de \textit{medias móviles (Moving-Average)} es que asume que las desviaciones actuales de los valores medios aritméticos de la serie dependen de las desviaciones anteriores.
 El orden que se le fija a la media móvil determinará la desviación de la estimación y, cuanto más alto sea este valor, más homogénea será la desviación.
-Nosotros hemos fijado el orden en 3, lo que significa que para la predicción del periodo n+1, el modelo tendrá en cuenta los valores de n, los de n+1 y los de n+2, calculando la media de ellos.
+Nosotros hemos fijado el orden en 3, lo que significa que para la predicción del periodo n+1, el modelo tendrá en cuenta los valores de n, los de n-1 y los de n-2, calculando la media de ellos.
 \smallbreak
-	\subsection{Modelo STL}
-\textit{STL} es un modelo versátil y robusto para descomponer series temporales. \textit{STL} es un acrónimo de \textit{"Seasonal and Trend decomposition using Loess"}, siendo \textit{Loess} un método de estimación de relaciones no lineales.
+Este modelo no admite regresores. Hemos aplicado el modelo sobre la serie original y sobre la serie transformada logarítmicamente.
+
+	\subsection{MSTL}
+\textit{STL} es un modelo versátil y robusto para descomponer series temporales. \textit{STL} es un acrónimo de \textit{"Seasonal and Trend decomposition using Loess"}, siendo \textit{Loess} un método de estimación de relaciones no lineales. \cite{MODone}
 \textit{STL} tiene varias ventajas sobre otros métodos clásicos de descomposición:
 	\begin{itemize}
 	\item maneja cualquier tipo de estacionalidad, no sólo mensual o trimestral
 	\item la componente de estacionalidad puede variar con el tiempo
 	\item es robusto frente a outliers (valores atípicos) para las estimaciones de tendencia y estacionalidad aunque estos outliers afectarán a la componente residual de la serie
 	\end{itemize}
-	\subsection{Modelo MSTL}
 Utilizamos el modelo \textit{MSTL} que es una variación de \textit{STL} para series con estacionalidad múltiple. Utilizando la función \textit{mstl} de R (también específica para series con estacionalidad múltiple), sobre la serie construida con la función \textit{msts}, obtenemos las gráficas de las dos estacionalidades indicadas (diaria y semanal), la tendencia (que se observa evolutiva) y el componente residual.
 \smallbreak
-	\subsection{Modelos BATS y TBATS}
-\textit{BATS} es otro modelo cuyo acrónimo destaca las características más relevantes:
+Este modelo no admite regresores. Hemos aplicado el modelo sobre la serie original y sobre la serie transformada logarítmicamente.
+
+	\subsection{BATS y TBATS}
+\textit{BATS} es otro modelo cuyo acrónimo destaca las características más relevantes \cite{MODone}:
 	\begin{itemize}
-	\item B: transformaciones Box-Cox (que arreglan problemas de normalidad y heterocedasticidad, es decir, no homogeneidad de varianzas)
+	\item B: transformaciones Box-Cox, mencionadas anteriormente, que arreglan problemas de normalidad y heterocedasticidad, es decir, no homogeneidad de varianzas
 	\item A: errores ARMA (modelo de medias móviles autoregresivos para la estimación del componente residual de la serie)
 	\item T: Tendencia
 	\item S: estacionalidad (Seasonality)
 	\end{itemize}
 Y \textit{TBATS} es un modelo lanzado como BATS en 2011 y añade regresores Trigonométricos para modelar múltiples estacionalidades.
 Los modelos \textit{BATS} y \textit{TBATS} son métodos de descomposición de una serie temporal que permiten que sus múltiples estacionalidades se incorporen simultáneamente y que cambien lentamente con el tiempo. Cada componente de la serie se estima explícitamente y se mide estadísticamente. Después cada componente estimado se recombina para realizar la predicción final. 
-Un par de inconvenientes de los modelos \textit{BATS} y \textit{TBATS} es su lentitud, especialmente con series largas, y que los intervalos de confianza para la predicción suelen ser demasiado amplios. 
+Un par de inconvenientes de los modelos \textit{BATS} y \textit{TBATS} es su lentitud, especialmente con series largas, y que los intervalos de confianza para la predicción suelen ser demasiado amplios.
 \smallbreak
-	\subsection{Modelo de Holt-Winters}
-El modelo de \textit{Holt-Winters} computa el filtrado de \textit{Holt-Winters} de una serie temporal dada, que se fundamenta en la estacionalidad. Este modelo tiene dos variaciones, por una parte la aditiva y por la otra la multiplicativa. Se prefiere la aditiva cuando las variaciones estacionales son en general constantes a lo largo de la serie, mientras que se escogerá la multiplicativa cuando las variaciones estacionales cambien proporcionalmente según el nivel de la serie.
+Estos dos modelos no admiten regresores. Los hemos aplicado sobre la serie original y sobre la serie transformada logarítmicamente.
+
+	\subsection{Holt-Winters y DSHW}
+El modelo de \textit{Holt-Winters} computa el filtrado de \textit{Holt-Winters} de una serie temporal dada, que se fundamenta en la estacionalidad. Este modelo tiene dos variaciones, por una parte la aditiva y por la otra la multiplicativa. Se prefiere la aditiva cuando las variaciones estacionales son en general constantes a lo largo de la serie, mientras que se escogerá la multiplicativa cuando las variaciones estacionales cambien proporcionalmente según el nivel de la serie. Con nuestra serie hemos comprobado que se obtienen mejores resultados cuando la configuración es aditiva. 
 \smallbreak
-	\subsection{Modelo de DSHW}
 \textit{DSHW (Double Seasonal Holt-Winters)} es un método de 1960 y como su nombre indica es una variación del modelo \textit{Holt-Winters} para series con doble estacionalidad.
-	\smallbreak
+Estos modelos no admiten regresores. Los hemos aplicado sobre la serie original y sobre la serie transformada logarítmicamente.
+
 	\subsection{Modelo BSTS} \cite{MODthree} \cite{MODfour} \cite{MODfive} \cite{MODsix} \cite{MODseven}
-	El modelo \textit{BSTS} de acuerdo a sus iniciales (Bayesian Structured Time Series) se puede explicar:
+	El modelo \textit{BSTS} de acuerdo a sus iniciales (Bayesian Structured Time Series) se puede explicar como:
 	\begin{itemize}
-	\item \underline{Time series}. Se usan principalmente para el pronóstico, aunque los modelos de espacio de estado, para los cuales BSTS es solo una extensión, se han usado tradicionalmente en los filtros activos de ingeniería, y actualmente se usan en una variedad de aplicaciones.
-	\smallbreak
-	\textbf{Modelos de espacio de estado}: Metodología de modelado en la que el sistema se describe como la combinación de un vector de estado y un vector de observación, ambas series de tiempo. La relación entre el estado y la observación está descrita por el modelo de espacio de estado; el objetivo es inferir las propiedades del estado, que está oculto, de las observaciones disponibles en el pasado. Las previsiones se producen a partir de los estados futuros estimados.
-	\item \underline{Estructural}. Significa que BSTS proporciona un enfoque estructural para el modelado, en el que hay disponible un kit de componentes para capturar diferentes aspectos de la serie; la arquitectura del modelo puede incluir o excluir cualquiera de esos componentes.
-	\item \underline{Bayesiana}. Significa que la implementación utilizada para esta propuesta tiene un enfoque bayesiano. Esto no significa que uno tenga que "convertirse" en estadísticas bayesianas. De manera pragmática, tiene 2 consecuencias principales, 
+		\item \underline{Bayesiano}: significa que la implementación tiene un enfoque bayesiano. De manera pragmática, tiene 2 consecuencias principales,
 	\begin{enumerate}
 		\item  todas las salidas del modelo vendrán en una distribución con un intervalo de certeza (y en realidad todos los parámetros dentro del modelo tendrán una distribución), y 
-		\item  es posible para expresar el conocimiento previo sobre la serie objetivo a través de los priors bayesianos (que pueden considerarse como hiperparámetros del modelo)
+		\item  es posible expresar el conocimiento previo sobre la serie objetivo a través de los \textit{priors} bayesianos (que pueden considerarse como hiperparámetros del modelo).
 	\end{enumerate}
-	\smallbreak
-	En sus diferentes formas (modelos de espacio de estado, filtros de Kalman), los BSTS se han utilizado "tradicionalmente" (es decir, desde los años 60), todavía están en uso, ya que son muy adecuados para algunos escenarios. No están tan comúnmente cubiertos en los cursos y recursos en línea, tutoriales, etc., y son un poco más difíciles de usar en comparación con otros modelos de aprendizaje automático; sin embargo, hay una biblioteca de código abierto de muy alta calidad disponible en R, razonablemente directa en su uso y bien documentada.
-	\item \underline{Componentes estructurales}. 
-	\smallbreak
-	BSTS proporciona un kit de componentes que se pueden usar para modelar la serie para predecir. Estos componentes capturarán diferentes aspectos de la serie, y se pueden agregar o eliminar según las necesidades, como en un juego de construcción. En la descomposición clásica, se clasifican aproximadamente como:
+		\item \underline{Estructural}: significa que BSTS proporciona un enfoque estructural para el modelado, en el que hay disponible un kit de componentes para capturar diferentes aspectos de la serie; la arquitectura del modelo puede incluir o excluir cualquiera de esos componentes.
+	\item \underline{Time series}: BSTS utiliza modelos de espacio de estado, que es una metodología de modelado en la que el sistema se describe como la combinación de un vector de estado y un vector de observación, ambas series de tiempo. La relación entre el estado y la observación está descrita por el modelo de espacio de estado; el objetivo es inferir las propiedades del estado, que está oculto, de las observaciones disponibles en el pasado. Las previsiones se producen a partir de los estados futuros estimados.
+	\end{itemize}
+
+	En sus diferentes formas (modelos de espacio de estado, filtros de Kalman), los modelos BSTS se han utilizado "tradicionalmente" (desde los años 60), y todavía están en uso ya que son muy adecuados para algunos escenarios. No están tan comúnmente cubiertos en los cursos y recursos en línea, tutoriales, etc., y son un poco más difíciles de usar en comparación con otros modelos de aprendizaje automático; sin embargo, hay una biblioteca de código abierto de muy alta calidad disponible en R, razonablemente directa en su uso y bien documentada.
+\smallbreak
+\subsubsection{Componentes estructurales} 
+	BSTS proporciona un kit de componentes que se pueden usar para modelar la serie. Estos componentes capturan diferentes aspectos de la serie, y se pueden agregar o eliminar según las necesidades, como en un juego de construcción. En la descomposición clásica son aproximadamente:
 	\[
 	y_t  = \underbrace{\mu_t}_{{trend}} + \underbrace{\gamma_t}_{{seasonal}} + \underbrace{\beta^T x_t}_{{regression}} + \epsilon_t
 	\]
@@ -1083,69 +1091,40 @@ El modelo de \textit{Holt-Winters} computa el filtrado de \textit{Holt-Winters} 
 	\gamma_t = - \displaystyle\sum_{s=1}^{S-1} \gamma_{t-s} + w_t
 	\]
 		\begin{itemize}
-		\item Componentes trend, que capturan los aspectos de tendencia de la serie
-		\item Componentes seasonal, que captan los aspectos periódicos de la serie
-		\item Componentes regression, que capturan la influencia de las variables explicativas (es decir, variables externas a la serie para predecir que proporcionan cierta información a la predicción)
+		\item Componente \textit{trend}, captura los aspectos de tendencia de la serie
+		\item Componente \textit{seasonal}, capta los aspectos periódicos de la serie
+		\item Componente \textit{regression}, captura la influencia de las variables explicativas (es decir, variables externas a la serie para predecir que proporcionan cierta información a la predicción)
 		\end{itemize}
-	El kit completo de componentes se describe en la descripción de la biblioteca BSTS. \cite{MODeight}
+	El kit completo de componentes se encuentra en la descripción de la biblioteca BSTS. \cite{MODeight}
 
-	\item \underline{Breve descripción del funcionamiento de BSTS}
+	\subsubsection{Breve descripción del funcionamiento de BSTS}
+	BSTS realiza dos operaciones principales: filtrado y suavizado (\textit{filtering and smoothing}). El filtrado proporciona una predicción de la serie dados todos los datos disponibles hasta el momento y el suavizado corrige el estado del modelo cuando una nueva observación de la serie está disponible; es decir, el modelo compara la predicción con la observación y utiliza el error para corregir su propio estado. Al entrenar el modelo la librería revisa internamente todos los datos periodo a periodo, ejecutando sucesivas operaciones de filtrado y suavizado, hasta el último periodo de tiempo disponible.
+		\smallbreak
+		Es importante tener en cuenta que estas operaciones de filtrado consecutivas se vuelven cada vez menos precisas para un horizonte creciente de la predicción. En nuestra serie evitamos este problema considerando un horizonte de predicción corto, las 12 horas del día siguiente.
+		\smallbreak
+\underline{Enfoque bayesiano}:
 	\smallbreak
-	BSTS realiza dos operaciones principales: filtrado y suavizado (filtering and smoothing).
+	En cada uno de los componentes de un modelo BSTS, es posible configurar \textit{priors} Bayesianos que capturan información previa sobre la serie objetivo para predecir. A primera vista, no parece fácil para un data scientist traducir el conocimiento del negocio sobre la serie a la definición de los {priors}.
+		Por ejemplo, el componente \textit{LocalLevel} más simple disponible, que es un componente de tendencia, tiene 2 \textit{priors}:
 		\begin{itemize}
-		\item El filtrado proporciona una predicción one-step de la serie, dados todos los datos disponibles hasta el momento; es decir, en una serie mensual como el objetivo, proporciona la predicción para el próximo mes, dados todos los datos disponibles hasta el mes actual.
-		\item El suavizado corrige el estado del modelo cuando una nueva observación de la serie está disponible; es decir, el modelo compara la predicción con la observación y utiliza el error para corregir su propio estado.
+		\item \textit{initial.state.prior}: describe la distribución del vector anterior al estado inicial. Esta variable se puede omitir. En la mayoría de las situaciones prácticas, el modelo calcula correctamente el valor inicial del vector de estado sin necesidad de agregar información previa.
+		\item \textit{sigma.prior}: se puede interpretar como un parámetro para el suavizado, que determina qué tan ajustado es el componente de tendencia que seguirá los últimos valores de la serie. Un valor alto de \textit{sigma.prior} indica que el componente seguirá la serie con firmeza, y un valor bajo indica lo contrario.
 		\end{itemize}
-		Al entrenar el modelo, la librería revisa internamente todos los datos periodo a periodo, ejecutando sucesivas operaciones de filtrado y suavizado, hasta el último periodo de tiempo disponible.
 		\smallbreak
-		Es importante tener en cuenta que estas operaciones de filtrado consecutivas se vuelven cada vez menos precisas para un horizonte creciente de la predicción; Las predicciones no serán muy útiles para los últimos periodos del horizonte de predicción, si es muy amplio. Es difícil definir un ancho óptimo del horizonte, dependiendo de las características de la serie y la complejidad del modelo.
-	\item \underline{Enfoque bayesiano}
-	\smallbreak
-	En cada uno de los componentes de un modelo BSTS, es posible configurar priors Bayesianos que capturan información previa sobre la serie objetivo para predecir. A primera vista, no parece fácil para el analista traducir el conocimiento del negocio sobre la serie y el dominio a un sigma prior, por ejemplo. Sin embargo, debería ser posible para un analista de negocios (quien quizás sepa qué es la variación, pero de todos modos no tiene idea de lo que es un sigma prior), para averiguar la información necesaria.
-	\smallbreak
-		Continuemos con esta explicación para el componente de tendencia más simple disponible, el componente de nivel local (LocalLevel), que es un componente de tendencia. En cuanto a la documentación en el paquete R, tiene 2 priors:
-		\begin{itemize}
-		\item initial.state.prior: describe la distribución anterior del vector de estado inicial (en el momento 1)
-		\item sigma.prior: describe la distribución anterior para la desviación estándar de la aleatoria caminar incrementos
-		\end{itemize}
-		Se puede omitir initial.state.prior, en particular si el analista no está seguro de cuál es el vector de estado. En la mayoría de las situaciones prácticas, el modelo calcula correctamente el valor inicial del vector de estado sin necesidad de agregar información previa.
+		Lo más recomendable es realizar validación cruzada para seleccionar los parámetros con las desventajas que esto conlleva (tiempo excesivo, soluciones buenas pero quizás no las mejores, etc.)
+
+\subsubsection{Modelos de BSTS elegidos}
+		Hemos seleccionado tres componentes del modelo BSTS: \textit{LocalLevel}, \textit{Ar} y \textit{LocalLinearTrend}, sabiendo que alguno no es el más adecuado tal y como comenta el diseñador de la librería: \cite{MODnine}
 		\smallbreak
-		¿Qué pasa con el sigma.prior? El componente a nivel local describe la tendencia de una manera bastante simple; se puede ver como un suavizado exponencial de los valores previos de la serie. Por lo tanto, el modelo predice el valor del siguiente paso (es decir, para la serie objetivo) como un suavizado de los valores pasados. Lo anterior se puede ver entonces como un parámetro para este suavizado: determina qué tan ajustado es el componente de tendencia que seguirá los últimos valores de la serie. Un valor alto de sigma indica que el componente seguirá la serie con firmeza, y un valor bajo indica lo contrario.
+		\textit{``El modelo LocalLinearTrend es muy flexible, pero esta flexibilidad puede aparecer como una varianza no deseada en los pronósticos a largo plazo. La mayoría de las variaciones de tus series de tiempo parecen provenir de la estacionalidad, por lo que puedes probar LocalLevel o incluso AddAr en lugar de LocalLinearTrend``}
 		\smallbreak
-		Cuando no se tiene claro los priors se puede hacer validación cruzada con las desventajas que esto conlleva (tiempo excesivo, soluciones buenas pero quizás no las mejores etc.)
-	\item \underline{Aplicación de BSTS al TFM}
+		Además, por cada componente consideramos su aplicación sin regresores y con regresores, considerando las 3 variables externas antes mencionadas.
+\smallbreak
+\underline{Componente LocalLinearTrend}:
 	\smallbreak
-	BSTS aporta los siguientes componentes:
-		\begin{itemize}
-		\item Componentes trend
-			\begin{itemize}
-			\item AddAr
-			\item AddAutoAr
-			\item AddLocalLevel
-			\item AddLocalLinearTrend
-			\item AddStudentLocalLinearTrend
-			\item AddGeneralizedLocalLinearTrend
-			\end{itemize}
-			Uno puede pensar que un linear trend como una relación de regresión entre la serie y el tiempo. Para un cambio en el tiempo $\Delta$, la respuesta debería cambiar $\beta_1 * \Delta_1$.
-		\item Seasonal components. Los componentes estacionales capturan la periodicidad en los datos. Las opciones incluyen:
-			\begin{itemize}
-			\item AddTrig
-			\item AddSeasonal
-			\item AddNamedHolidays
-			\item AddFixedDateHoliday
-			\item AddNthWeekdayInMonthHoliday
-			\item AddLastWeekdayInMonthHoliday
-			\end{itemize}
-		\end{itemize}
-		Se han seleccionado \textbf{AddLocalLevel}, \textbf{AddAr} , \textbf{AddLocalLinearTrend} para establecer comparativas aun sabiendo que algunos no son los más adecuados basándose en la respuesta del propio Scott: \cite{MODnine}
-		\smallbreak
-		\textit{``El modelo \textbf{LocalLinearTrend} es muy flexible, pero esta flexibilidad puede aparecer como una varianza no deseada en los pronósticos a largo plazo. Hay algunos otros modelos de tendencias que contienen un poco más de estructura. \textbf{GeneralizedLocalLinearTrend} (perdón por el nombre no descriptivo) asume que el componente "slope" de la tendencia es un proceso AR1 en lugar de un random walk. Es mi opción por defecto si quiero pronosticar en el futuro. La mayoría de las variaciones de tus series de tiempo parecen provenir de la estacionalidad, por lo que puedes probar \textbf{AddLocalLevel} o incluso \textbf{AddAr} en lugar de \textbf{AddLocalLinearTrend}``}
-		\smallbreak
-		Además, por cada componente se realiza su aplicación sin regresores y con regresores y se establecen comparativas entre los diferentes métodos.
-	\item \underline{Local linear trend state component}
+	Agrega un modelo de tendencia lineal local a una especificación de estado. El modelo asume que tanto la media como la pendiente de la tendencia son \textit{random walk}, siendo \textit{random walk} una serie temporal donde la observación actual es igual a la observación previa con una variación aleatoria incremental o decremental, teniendo esa variación una distribución de ruido blanco (sin correlación estadística entre sus valores).
 	\smallbreak
-	Agrega un modelo de tendencia lineal local a una especificación de estado. El modelo de tendencia lineal local asume que tanto la media como la pendiente de la tendencia siguen random walk. La ecuación para la media es:
-	\smallbreak
+	La ecuación para la media es:
 	\[
 	\mu_{t+1} = \mu_t + \delta_t + rnorm(1,0,sigma.level)
 	\]
@@ -1154,18 +1133,24 @@ El modelo de \textit{Holt-Winters} computa el filtrado de \textit{Holt-Winters} 
 	\[
 	\delta_{t+1} = \delta_t + rnorm(1,0,sigma.slope)
 	\]
-	La distribución anterior se encuentra en el nivel de desviación estándar sigma.level y la pendiente de desviación estándar sigma.slope.
-	\item \underline{AR(p) state component}
 	\smallbreak
-	Agrega un componente AR(p) a una especificación de estado.
+	La distribución anterior se encuentra en el nivel de desviación estándar \textit{sigma.level} y la pendiente de desviación estándar \textit{sigma.slope}.
+\smallbreak	
+\smallbreak
+\underline{Componente AR}
+	\smallbreak
+	Agrega un componente \textit{AR(p)} a una especificación de estado.
 	\smallbreak
 	El modelo es:
 	\[
 	\alpha_t = \phi_1 * \alpha_{t-1} + ... + \phi_p * \alpha_{t-p} + \epsilon_{t-1}, con \epsilon_{t-1} \sim N(0, \sigma^2)
 	\]
 	\smallbreak
-	El estado consiste en los últimos retrasos del $\alpha$. La matriz de transición de estado tiene $\phi$ en su primera fila, unos a lo largo de su primer subdiagonal y ceros en otros lugares. La matriz de varianza del estado tiene $\sigma^2$ en su esquina superior izquierda y es cero en otras partes. La matriz de observación tiene 1 en su primer elemento y es cero en caso contrario.
-	\item \underline{Local level trend state component}
+	El estado consiste en los últimos valores de $\alpha$. La matriz de transición de estado tiene $\phi$ en su primera fila, valores igual a 1 a lo largo de su primer subdiagonal y valores igual a 0 en el resto. La matriz de varianza del estado tiene $\sigma^2$ en su esquina superior izquierda y es cero en el resto. La matriz de observación tiene el valor 1 en su primer elemento y es cero en el resto.
+	\smallbreak
+	\smallbreak
+\underline{Componente LocalLevel}
+\smallbreak
 	Agrega un modelo de nivel local a una especificación de estado. El modelo a nivel local asume que la tendencia es un random walk:
 	\smallbreak
 	\[
@@ -1173,20 +1158,158 @@ El modelo de \textit{Holt-Winters} computa el filtrado de \textit{Holt-Winters} 
 	\]
 	\smallbreak
 	
-	\begin{figure} [!htb]
-		\centering
-		\includegraphics[scale=.4]{MOD-BSTS-codigoR}
-		\caption{Ejemplo de código R donde se aplica por parquímetro los diferentes componentes y comparativas}
-		\label{MOD-BSTS-codigoR}
-	\end{figure}
+%	\begin{figure} [!htb]
+%		\centering
+%		\includegraphics[scale=.4]{MOD-BSTS-codigoR}
+%		\caption{Ejemplo de código R donde se aplica por parquímetro los diferentes componentes}
+%		\label{MOD-BSTS-codigoR}
+%	\end{figure}
+
+Una de las ventajas de la librería de BSTS es que nos permite obtener gráficas como la siguiente mostrando una comparativa del comportamiento del error acumulado para 3 componentes del modelo con un parquímetro concreto:
 	
 	\begin{figure} [!htb]
 		\centering
 		\includegraphics[scale=.4]{MOD-BSTS-grafica}
-		\caption{Ejemplo de comparativa de tres modelos con componentes distintos para un parquímetro}
+		\caption{Ejemplo de comparativa de tres componentes BSTS para un parquímetro seleccionado}
 		\label{MOD-BSTS-grafica}
 	\end{figure}
-	\end{itemize}
+
+
+\section{Otro modelo descartado}
+HTS...
+
+\section{Aplicación de los modelos}
+Para comparar todos los modelos mencionados con sus distintas variantes (sobre la serie original, o transformada logarítmicamente, o con regresores), utilizamos una técnica llamada \textit{Day Forward-Chaining}. \cite{MODten}
+\smallbreak
+Partimos de nuestra serie temporal acotada al primer trimestre del año con 936 observaciones, correspondientes a 78 días hábiles. 
+Comenzamos considerando los 30 primeros días hábiles de la serie (30 días * 12 horas = 360 observaciones) como el primer conjunto de entrenamiento de los modelos, realizamos la primera predicción de las 12 horas del día siguiente, y calculamos el MAE (\textit{Mean Absolute Error}) asociado. 
+En el siguiente paso el conjunto de entrenamiento aumenta en 12 observaciones más de la serie y repetimos el proceso con la predicción de las 12 horas del día siguiente y cálculo del MAE asociado. De esta forma el conjunto de entrenamiento crece con cada iteración hasta tener un tamaño final igual a 936 - 12 = 924 observaciones y se repite el proceso por última vez con la predicción de las últimas 12 horas del trimestre y cálculo del MAE asociado. 
+Finalmente obtenemos un vector con un total de 48 valores de MAE distintos y calculamos su MAD (\textit{Median Absolute Deviation)} y su Media winsorizada al 5\% superior para descartar posibles outliers. El valor de la Media winsorizada asociada a cada modelo y parquímetro será el parámetro que utilizaremos para comparar los modelos entre sí.      
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{MOD-valnes}
+		\caption{Técnica Day Forward-Chaining}
+		\label{MOD-valnes}
+	\end{figure}
+
+\newpage
+En el caso de los componentes del modelo BSTS se considera en cada iteración que las últimas 12 observaciones del conjunto de entrenamiento se utilizan para validación y selección de los mejores hiperparámetros del modelo. Y en el caso de spTimer de forma análoga para seleccionar el mejor submodelo entre GP y AR. 
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{MOD-bsts-valnes}
+		\caption{Técnica Day Forward-Chaining con validación (para BSTS y spTimer)}
+		\label{MOD-bsts-valnes}
+	\end{figure}
+
+Y en la Figura \ref{MOD-vec-maes} representamos para un parquímetro los 48 valores de MAE obtenidos para cada uno los tres mejores modelos, en color negro el mejor modelo, en color azul el segundo y en color verde el tercero y las líneas horizontales en esos tres colores son el valor de la media winsorizada asociada.    
+
+	\begin{center}
+		\includegraphics[scale=.4]{MOD-vec-maes}
+		\captionof{figure}{MAEs y media winsorizada de tres mejores modelos de un parquímetro seleccionado}
+		\label{MOD-vec-maes}
+	\end{center}
+
+
+\chapter{Evaluación de los modelos predictivos}
+Por cada uno de los 30 parquímetros seleccionados para el análisis comparativo de los modelos de predicción hemos evaluado un total de 23 submodelos distintos:
+\begin{itemize}
+\item 4 variaciones del modelo Auto-arima (con y sin regresores; con y sin transformación logarítmica)
+\item 2 variaciones del modelo de Medias móviles (con y sin transformación logarítmica)
+\item 2 variaciones del modelo MSTL (con y sin transformación logarítmica)
+\item 4 variaciones de los modelos BATS y TBATS (cada uno con y sin transformación logarítmica)
+\item 4 variaciones de los modelos HW y DSHW (cada uno con y sin transformación logarítmica)
+\item 6 variaciones del modelo BSTS (3 componentes distintos, cada uno con y sin regresores)
+\item 1 modelo spTimer con elecciones internas del mejor submodelo entre AR o GP
+\end{itemize}
+
+Definimos el mejor modelo como aquel que tiene el menor valor de la media winsorizada al 5\% de los MAEs obtenidos en el proceso de validación nesteada comentado en el capítulo anterior.
+\smallbreak
+En la Figura \ref{RES-top1-all} mostramos cuáles son los mejores modelos y sus resultados asociados para cada uno de los 30 parquímetros seleccionados. Los resultados están ordenados por la columna número de ceros, que cuenta los valores igual a 0 del porcentaje de ocupación, variable objetivo de la predicción y que hemos acotado la serie objetivo del análisis al primer trimestre del año para reducir el coste computacional. Además del predominio de las variaciones de los modelos BATS y TBATS ya mencionadas, vemos también que las transformaciones logarítmicas del modelo BATS y del modelo Holt-Winters son muy útiles para mejorar los resultados en aquellos parquímetros con mayor número de ceros en la variable objetivo de la predicción.
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{RES-top1-all}
+		\caption{Resultados de los mejores modelos para los 30 parquímetros seleccionados}
+		\label{RES-top1-all}
+	\end{figure}
+
+\smallbreak
+Se observa también que hay gran variabilidad entre los distintos parquímetros para los valores mínimos de la media obtenidos, desde 5.16 hasta 11.245, siendo curioso que los valores extremos mencionados aparezcan para los parquímetros con más ceros (menor media) y menos ceros (mayor media), ya que como se puede comprobar en la Figura \ref{RES-plot-wm-nz} no hay una relación para el resto de los parquímetros, salvo que los valores están más acotados en rango para aquellos parquímetros con mayor número de ceros. Los valores del MAD (desviación absoluta media) están bastante acotados entre 1.26 y 2.88, indicando que hay homogeneidad en los resultados.
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{RES-plot-wm-nz}
+		\caption{Relación entre la media mínima de los valores de MAE obtenidos y el número de ceros en la serie}
+		\label{RES-plot-wm-nz}
+	\end{figure}
+
+En la Figura \ref{RES-top1-models} se muestra la distribución agrupada por familias de modelos. En más de un 76\% de los casos (23 sobre 30 parquímetros) los menores valores de MAE se han obtenido con la familia de modelos TBATS y BATS. Para el resto destacan los modelos HW y DSHW con un 10\% de los casos y los modelos MSTL (6\%, sólo 2 parquímetros). Los modelos Medias móviles y BSTS con componente LocalLevel sin regresores aparecen con 1 parquímetro cada uno.
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{RES-top1-models}
+		\caption{Distribución de los mejores modelos para los 30 parquímetros seleccionados}
+		\label{RES-top1-models}
+	\end{figure}
+
+Por otra parte, comparando los valores de la media obtenida con el mejor modelo frente a la media obtenida con el segundo mejor modelo, vemos que para la mitad de los parquímetros los dos mejores modelos pertenecen a la misma familia, y que para tres parquímetros concretos apenas hay una diferencia de centésimas entre los valores de los dos mejores modelos, aunque en esos tres casos los dos mejores modelos pertenecen a familias distintas. Mostramos los resultados obtenidos para los 3 parquímetros en esa situación:
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{RES-top2-ek1045}
+		\caption{Resultados de los dos mejores modelos para el parquímetro con id 1045}
+		\label{RES-top2-ek1045}
+	\end{figure}
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{RES-top2-ek62458}
+		\caption{Resultados de los dos mejores modelos para el parquímetro con id 62458}
+		\label{RES-top2-ek62458}
+	\end{figure}
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{RES-top2-ek69098}
+		\caption{Resultados de los dos mejores modelos para el parquímetro con id 69098}
+		\label{RES-top2-ek69098}
+	\end{figure}
+ 
+Ampliando la evaluación a los 3 mejores modelos por cada parquímetro, obtenemos que se mantiene el predominio de la familia TBATS y BATS pero se reduce al 60\% de los casos, mientras que la familia Holt-Winters aparece destacada en un 22\% de los casos, un 12\% para la familia MSTL y un 5\% para los modelos BSTS.
+
+	\begin{figure} [!htb]
+		\centering
+		\includegraphics[scale=.4]{RES-top3-models}
+		\caption{Distribución de los tres mejores modelos para los 30 parquímetros seleccionados}
+		\label{RES-top3-models}
+	\end{figure}
+
+Y considerando los 3 mejores modelos encontramos algunas curiosidades:
+\begin{itemize}
+\item no hay ningún parquímetro que no tenga un modelo de la familia BATS y TBATS entre los 3 mejores
+\item hay 3 parquímetros en los que sus 3 mejores modelos son de la misma familia, BATS y TBATS (ids 18622, 30698 y 34938)
+\item hay 1 parquímetro donde sus 3 mejores modelos utilizan la serie transformada logarítmicamente (id 13793)
+\end{itemize}
+
+Recordamos que para cada parquímetro hemos analizado 23 modelos, que podemos ordenar en un ranking de 0 (mejor modelo) a 22 (peor modelo). Si calculamos la posición media de cada modelo en el listado ordenado de los mejores modelos por parquímetro, obtenemos los resultados que se muestran en la Figura \ref{RES-rank-models-ordered} donde observamos que:
+\begin{itemize}
+\item el modelo TBATS tiene un mejor rendimiento que BATS
+\item DSHW también supera al modelo HW, algo esperable por la doble estacionalidad de nuestra serie
+\item los componentes sin regresores de BSTS tienen mejor rendimiento que los que utilizan regresores, y LocalLinearTrend se comporta peor que LocalLevel y Ar
+\item la transformación logarítmica no es recomendable para el modelo DSHW que pasa de estar en la cuarta posición a la última
+\end{itemize}
+
+	\begin{center}
+		\includegraphics[scale=.4]{RES-rank-models-ordered}
+		\captionof{figure}{Posición media de cada modelo en el listado de mejores modelos por parquímetro}
+		\label{RES-rank-models-ordered}
+	\end{center}
+ 
+\chapter{Conclusiones y casos de uso}
+
+\underline{Relevancia de los regresores}
+\smallbreak
+\underline{Modelos sencillos frente a modelos complejos}
+
 \printbibliography	
 
-\end{document} 
+\end{document}
