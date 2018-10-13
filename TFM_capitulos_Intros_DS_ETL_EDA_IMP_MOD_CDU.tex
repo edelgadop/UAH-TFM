@@ -811,7 +811,7 @@ Los mismos resultados pueden observarse en la Figura \ref{EDA-CDF-new}, donde se
 	\begin{figure} [!htb]
 		\centering
 		\includegraphics[scale=.3]{EDA-CDF-new}
-		\caption{Funciones de distribución de las variables de temperaturas}
+		\caption{Funciones de distribución de las variables de temperatura}
 		\label{EDA-CDF-new}
 	\end{figure}
 
@@ -940,14 +940,14 @@ Este capítulo presenta un análisis referente a la elección de las mejores variab
 
 \section{Análisis estadístico de la importancia de las variables} 
 A la hora de realizar una predicción mediante cualquier modelo predictivo, es de crucial importancia realizar una selección previa de las variables. Esto se debe a que el potencial predictivo de un conjunto de datos depende directamente de las distintas características que introduzca. Un dataset con pocas variables no podrá realizar predicciones complejas y precisas, mientras que un dataset con demasiadas variables tendrá dificultades para generalizar el resultado obtenido (sobreajuste). Normalmente, una combinación de las variables del dataset que deje fuera algunas de las características con menos importancia dará un resultado con la suficiente complejidad como para ser útil, y por otro lado será capaz de generalizar el resultado a muestras que no se encuentren en el conjunto de entrenamiento.
- 
-Esta primera sección del capítulo explora las relaciones que existen entre las distintas variables del dataset de parquímetros de Seattle, con el objetivo de ver, exclusivamente, cómo se relacionan los distintos regresores exógenos con la variable de predicción (porcentaje de ocupación de un parquímetro en concreto, a una hora determinada. En el capítulo de EDA ya se han estudiado algunos parámetros similares a lo que se muestra en este capítulo, si bien el objetivo aquí es definir un conjunto de variables para alimentar a los modelos predictivos de capítulos posteriores. 
-
+\smallbreak 
+Esta primera sección del capítulo explora las relaciones que existen entre las distintas variables del dataset de parquímetros de Seattle, con el objetivo de ver, exclusivamente, cómo se relacionan los distintos regresores exógenos con la variable de predicción (porcentaje de ocupación de un parquímetro en concreto, a una hora determinada). En el capítulo de EDA ya se han estudiado algunos parámetros similares a lo que se muestra en este capítulo, si bien el objetivo aquí es definir un conjunto de variables para alimentar a los modelos predictivos de capítulos posteriores. 
+\smallbreak
 A lo largo de este capítulo se hace referenica en varias ocasiones a la \textbf{prueba U de Mann-Whitney}. Esta prueba, entre otras aplicaciones, se utiliza para establecer si hay asociación entre una variable continua (el porcentaje de ocupación en nuestro caso) y una variable binaria. La prueba U de Mann-Whitney es un test no paramétrico (no impone ninguna condición a la distribución de los datos), basado en suma de rangos. En ella, se calcula el estadístico $U$, definido como:
 
 \[ U = \min(U_1, U_2) \]
 
-$U_1$ y $U_2$ son se calculan como sigue:
+$U_1$ y $U_2$ se calculan como sigue:
 
 \[ U_i = R_i -\dfrac{n_i(n_i+1)}{2}, \; i \in \{1,2\} \text{ ,} \]
 
@@ -955,100 +955,104 @@ donde $n_1$ es el número de muestras que corresponden a uno de los dos valores d
 
 \subsection{Relevancia de los intervalos horarios}
 A continuación, se muestran los resultados de aplicar la prueba U a los 30 Element Key seleccionados para análisis. Para ello, se segmenta el dataset por horas, definiendo la hipótesis nula como sigue:
+\[ 
+H_0: \text{encontrarse en el rango horario } h_i \; \text{tiene la misma distribución estadística 
+que no encontrarse en él}
+\]
 
-\[ H_0 : \text{Encontrarse en el rango horario } h_i \; \text{tiene la misma distribución estadística que no encontrarse en él }\]
-
-Los resultados se muestran en las figuras \label{topEK0-5} - \label{topEK25-30}, e indican que, para un nivel de significación del 99.5\%, la gran mayoría de los intervalos horarios son significativos, aunque la distribución concreta depende de cada Element Key.
+Los resultados se muestran en las Figuras \ref{topEK0-5} - \ref{topEK25-30}, e indican que, para un nivel de significación del 99.5\%, la gran mayoría de los intervalos horarios son significativos, aunque la distribución concreta depende de cada Element Key.
 
 \begin{figure} [!h]
 		\centering
-		\includegraphics[scale=.26]{topEK0-5_h}
+		\includegraphics[scale=.25]{topEK0-5_h}
 		\caption{Relevancia horas top 30 EK (1 de 6)}
 		\label{topEK0-5}
 	\end{figure}
 	
 	\begin{figure} [!h]
 		\centering
-		\includegraphics[scale=.26]{topEK5-10_h}
+		\includegraphics[scale=.25]{topEK5-10_h}
 		\caption{Relevancia horas top 30 EK (2 de 6)}
 		\label{topEK5-10}
 	\end{figure}
 	
 	\begin{figure} [!h]
 		\centering
-		\includegraphics[scale=.26]{topEK10-15_h}
+		\includegraphics[scale=.25]{topEK10-15_h}
 		\caption{Relevancia horas top 30 EK (3 de 6)}
 		\label{topEK10-15}
 	\end{figure}
 	
 	\begin{figure} [!h]
 		\centering
-		\includegraphics[scale=.26]{topEK15-20_h}
+		\includegraphics[scale=.25]{topEK15-20_h}
 		\caption{Relevancia horas top 30 EK (4 de 6)}
 		\label{topEK15-20}
 	\end{figure}
 	
 	\begin{figure} [!h]
 		\centering
-		\includegraphics[scale=.26]{topEK20-25_h}
+		\includegraphics[scale=.25]{topEK20-25_h}
 		\caption{Relevancia horas top 30 EK (5 de 6)}
 		\label{topEK20-25}
 	\end{figure}
 	
 	\begin{figure} [!h]
 		\centering
-		\includegraphics[scale=.26]{topEK25-30_h}
+		\includegraphics[scale=.25]{topEK25-30_h}
 		\caption{Relevancia horas top 30 EK (6 de 6)}
 		\label{topEK25-30}
 	\end{figure}
-	
+
+\newpage	
 \subsection{Relevancia del día de la semana}
-En esta sección se lleva a cabo un análisis equivalente al de la sección anterior, pero estudiando la significación estadística del día de la semana en el que se realiza la predicción. Para ello, se utiliza la prueba U de Mann-Whitney, pues estamos comparando de nuevo una variable con varios niveles y una variable continua. En este caso, los intervalos corresponden con el día de la semana: Lunes (L), Martes (L), miércoles (X), Jueves (J), Viernes (V) y Sábado (S). Los domingos quedan fuera del análisis al ser días no operativos de los parquímetros. Los resultados se presentan en las figuras \ref{topEK0-5w} - \ref{topEK25-30w}. Del mismo modo que en la sección anterior, se presentan gráficos de barras donde se puede observar el nivel de significación asociado a cada día de la semana y a cada EK. El código de colores es idéntico al de la sección anterior. 
+En esta sección se lleva a cabo un análisis equivalente al de la sección anterior, pero estudiando la significación estadística del día de la semana en el que se realiza la predicción. Para ello, se utiliza la prueba U de Mann-Whitney, pues estamos comparando de nuevo una variable con varios niveles y una variable continua. En este caso, los intervalos corresponden con el día de la semana: Lunes (L), Martes (L), Miércoles (X), Jueves (J), Viernes (V) y Sábado (S). Los domingos quedan fuera del análisis al ser días no operativos de los parquímetros. Los resultados se presentan en las Figuras \ref{topEK0-5w} - \ref{topEK25-30w}. Del mismo modo que en la sección anterior, se presentan gráficos de barras donde se puede observar el nivel de significación asociado a cada día de la semana y a cada EK. El código de colores es idéntico al de la sección anterior. 
 
 \begin{figure} [!h]
 		\centering
-		\includegraphics[scale=.26]{topEK0-5_w}
+		\includegraphics[scale=.25]{topEK0-5_w}
 		\caption{Relevancia weekday top 30 EK (1 de 6)}
 		\label{topEK0-5w}
 	\end{figure}
 	
 	\begin{figure} [!h]
 		\centering
-		\includegraphics[scale=.26]{topEK5-10_w}
+		\includegraphics[scale=.25]{topEK5-10_w}
 		\caption{Relevancia weekday top 30 EK (2 de 6)}
 		\label{topEK5-10w}
 	\end{figure}
 	
 	\begin{figure} [!h]
 		\centering
-		\includegraphics[scale=.26]{topEK10-15_w}
+		\includegraphics[scale=.25]{topEK10-15_w}
 		\caption{Relevancia weekday top 30 EK (3 de 6)}
 		\label{topEK10-15w}
 	\end{figure}
 	
 	\begin{figure} [!h]
 		\centering
-		\includegraphics[scale=.26]{topEK15-20_w}
+		\includegraphics[scale=.25]{topEK15-20_w}
 		\caption{Relevancia weekday top 30 EK (4 de 6)}
 		\label{topEK15-20w}
 	\end{figure}
 	
 	\begin{figure} [!h]
 		\centering
-		\includegraphics[scale=.26]{topEK20-25_w}
+		\includegraphics[scale=.25]{topEK20-25_w}
 		\caption{Relevancia weekday top 30 EK (5 de 6)}
 		\label{topEK20-25w}
 	\end{figure}
 	
 	\begin{figure} [!h]
 		\centering
-		\includegraphics[scale=.26]{topEK25-30_w}
+		\includegraphics[scale=.25]{topEK25-30_w}
 		\caption{Relevancia weekday top 30 EK (6 de 6)}
 		\label{topEK25-30w}
 	\end{figure}
 	
 	La relevancia del día de la semana es menor que la de la hora del día, pues hay más columnas en gris para el día de la semana. Aun así, los resultados muestran que el día de la semana es relevante para la predicción, aunque menos que la hora del día.
 	
+\newpage	
 \subsection{Regresores exógenos}
 Esta sección analiza, mediante varios métodos, la importancia de los regresores exógenos del dataset. Dado que hay distintos tipos de variables, realizaremos una prueba diferente para cada una de ellas. En concreto:
 \begin{itemize}
@@ -1064,7 +1068,7 @@ Son lecturas de sensores acerca de las condiciones atmosféricas y de temperatura
  \item $0.3\leq \left|\,\rho\,\right| < 0.7$: correlación \textit{moderada} 
  \item $0.7\leq \left|\,\rho\,\right| \leq 1.0$: correlación \textit{fuerte }
 \end{itemize}
-Si la correlación es moderada o fuerte, el signo de $\rho$ nos indicará el sentido de la correlación (directa o inversa). El nivel de significación se establece en $\alpha=0.05$. En la Figura \, se presenta un gráfico de barras con los resultados del cálculo de la correlación para un Element Key en concreto. Se marcan en gris las variables cuya significación asintótica es menor que el nivel de significación.	
+Si la correlación es moderada o fuerte, el signo de $\rho$ nos indicará el sentido de la correlación (directa o inversa). El nivel de significación se establece en $\alpha=0.05$. En la Figura \ref{exo1037}, se presenta un gráfico de barras con los resultados del cálculo de la correlación para un Element Key en concreto. Se marcan en gris las variables cuya significación asintótica es menor que el nivel de significación.	
 
 \begin{figure} [!h]
 		\centering
@@ -1091,12 +1095,14 @@ Si la correlación es moderada o fuerte, el signo de $\rho$ nos indicará el senti
 	
 	\subsection{Variables binarias}
 	Este análisis únicamente es relevante si se tienen en cuenta varios Element Keys. Si solo se analiza un EK aislado, entonces todas estas variables son constantes y por tanto no aportan información. Por ello, para este cálculo, se consideran todos los EK. Tomando el dataset de Element Keys seleccionados, solo es distinta de cero la variable 'Punto de interés'. Además, esta variable obtiene un nivel de significación del orden de $10^{-53}$ bajo una prueba U de Mann-Whitney, lo que la convierte en una variable relevante, pero, tal y como se ha comentado, solo en el caso de que se consideren localizaciones geográficas diferentes. 
-	
+
+\newpage	
 	\section{Importancia de variables basada en métodos de Machine Learning}
 En esta sección se presenta un análisis de la importancia de las variables según métodos de Machine Learning. Para ello, se utiliza el concepto de \textbf{importancia de permutación}. Este concepto consiste en evaluar la diferencia que existe en la métrica utilizada para el análisis (AUC, precisión, ...) cuando se elimina una de las variables del dataset. Tras llevar a cabo este análisis, se obtienen diferentes pesos para cada una de las variables, clasificándose en términos de su importancia. Debe tenerse cuidado con este método para evaluar la importancia pues, en primer lugar, necesita de un modelo entrenado que dé buenos resultados y, en segundo lugar, es vulnerable a la multicolinealidad. 
+\smallbreak
+Por otro lado, es de crucial relevancia mencionar que la interpretación de los resultados de este análisis debe realizarse con cuidado. Esto se debe a que la estructura de los datos bajo análisis es de tipo serie espacio-temporal. Es decir, cada registro está relacionado con el anterior. Por lo tanto, al entrenar los modelos de ML, y separarlos en entrenamiento y validación, se va a romper la estructura de serie de los datos, con lo que el rendimiento del modelo puede ser bajo. Con ello, los resultados obtenidos no van a ser generalizables en sentido estricto, pero sí se va a obtener una medida de cómo son de relevantes las variables, similar a una correlación, pero basándonos en modelos más complejos que el coeficiente de Pearson. Para evaluar la importancia de permutación, se ha utilizado la implementación de ELI5, que dispone de un \textit{wrapper} para los modelos entrenados con \textit{sklearn}. Se han entrenado dos modelos, basados en Random Forest y Gradient Boosting respectivamente.
 
-Por otro lado, es de crucial relevancia mecionar que la interpretación de los resultados de este análisis debe realizarse con cuidado. Esto se debe a que la estructura de los datos bajo análisis es de tipo serie espacio-temporal. Es decir, cada registro está relacionado con el anterior. Por lo tanto, al entrenar los modelos de ML, y separarlos en entrenamiento y validación, se va a romper la estructura de serie de los datos, con lo que el rendimiento del modelo puede ser bajo. Con ello, los resultados obtenidos no van a ser generalizables en sentido estricto, pero sí se va a obtener una medida de cómo son de relevantes las variables, similar a una correlación, pero basándonos en modelos más complejos que el coeficiente de Pearson. Para evaluar la importancia de permutación, se ha utilizado la implementación de ELI5, que dispone de un \textit{wrapper} para los modelos entrenados con \textit{sklearn}. Se han entrenado dos modelos, basados Random Forest y Gradient Boosting respectivamente.
-
+\newpage
 \subsection{Entrenamiento de los modelos}
 El entrenamiento de los modelos se ha realizado según los siguientes pasos:
 \begin{enumerate}
@@ -1109,7 +1115,7 @@ El entrenamiento de los modelos se ha realizado según los siguientes pasos:
 \end{enumerate}
 
 El modelo basado en Random Forest se ha entrenado con 75 estimadores, sin limitación en la profundidad de los nodos ni en su número de hojas. Del mismo modo, el modelo basado en Gradient Boosting utiliza también 75 árboles, sin penalizar la profundidad de los mismos. Aunque el hecho de no limitar la profundidad de los árboles puede llevar a sobreajustar el conjunto de datos, en este caso se ha realizado así para aumentar la capacidad predictiva de ambos modelos. Los resultados se evalúan mediante el ratio de verdaderos positivos (TPR) y el de falsos negativos (FPR), presentándolos en la curva ROC, y calculando el área bajo la curva (AUC), en la Figura \ref{roc-perm}. Los dos modelos tienen, en concreto, el valor de AUC que se 
-muestra en la tabla \ref{perm_t}.
+muestra en la Tabla \ref{perm_t}.
 
 \begin{table}[!htb]
 \centering
@@ -1132,15 +1138,16 @@ Gradient Boosting & 0.54         \\ \hline
 	
 Se observa que el modelo basado en Random Forest es algo superior al de Gradient Boosting, con los parámetros seleccionados para su entrenamiento. Sin embargo, los dos modelos tienen dificultades para superar el valor de 0.5, que correspondería a una clasificación aleatoria. Esto se debe a lo que se comentó previamente acerca de la estructura de serie de los datos.
 
+\newpage
 \subsection{Permutation Importance}
 Para concluir esta sección, se muestran los pesos de las variables más relevantes según los dos modelos estudiados. Estos resultados se presentan en la Figura \ref{weights}. 
 
-\begin{figure} [!h]
-		\centering
+\begin{center}
 		\includegraphics[scale=0.5]{permw}
-		\caption{Pesos importancia de permutación}
+		\captionof{figure}{Pesos importancia de permutación}
 		\label{weights}
-	\end{figure} 
+	\end{center} 
+	
 	
 \chapter{Descripción y aplicación de modelos predictivos}
 Que un hecho o cantidad sea predecible depende de varios factores principales \cite{MODone}:
@@ -1325,6 +1332,7 @@ Estos modelos no admiten regresores. Los hemos aplicado sobre la serie original 
 		\smallbreak
 		Además, por cada componente consideramos su aplicación sin regresores y con regresores, considerando las 3 variables externas antes mencionadas.
 \smallbreak
+\smallbreak
 \underline{Componente LocalLinearTrend}:
 	\smallbreak
 	Agrega un modelo de tendencia lineal local a una especificación de estado. El modelo asume que tanto la media como la pendiente de la tendencia son \textit{random walk}, siendo \textit{random walk} una serie temporal donde la observación actual es igual a la observación previa con una variación aleatoria incremental o decremental, teniendo esa variación una distribución de ruido blanco (sin correlación estadística entre sus valores).
@@ -1378,16 +1386,15 @@ Una de las ventajas de la librería de BSTS es que nos permite obtener gráficas c
 		\caption{Ejemplo de comparativa de tres componentes BSTS para un parquímetro seleccionado}
 		\label{MOD-BSTS-grafica}
 	\end{figure}
-
-	\subsection{Librería SpTimer} \cite{MODeleven} \cite{MODtwelve}
+		
+\subsection{Librería SpTimer} \cite{MODeleven} \cite{MODtwelve}
 
 \subsubsection{Modelos espacio-temporales}
 
 SpTimer es una librería para análisis de experimentos que tienen una estructura espacio-temporal. Antes de empezar con spTimer, se describe muy brevemente cómo se modelan eventos espacio-temporales.
-De forma sencilla, un modelo espacio-temporal es aquel en el que se han recogido datos de forma espacial (coordenadas) y a intervalos regulares (temporal). Por ejemplo, en nuestro caso de los parquímetros, suponiendo la serie agregada, tendremos datos de ocupación ligados a una coordenada geogáfica a intervalos regulares de tiempo. Entonces, la labor del modelo es más complicada que en otros tipos: debe encontrar correlaciones espaciales y correlaciones temporales.
+De forma sencilla, un modelo espacio-temporal es aquel en el que se han recogido datos de forma espacial (coordenadas) y a intervalos regulares (temporal). Por ejemplo, en nuestro caso de los parquímetros, suponiendo la serie agregada, tendremos datos de ocupación ligados a una coordenada geográfica a intervalos regulares de tiempo. Entonces, la labor del modelo es más complicada que en otros tipos: debe encontrar correlaciones espaciales y correlaciones temporales.
 
 \subsubsection{SpTimer}
-
 SpTimer es una librería que construye modelos espacio-temporales basándose en modelos gaussianos bayesianos. Presenta tres modelos a partir de los cuales se realizan las predicciones:
 	\begin{itemize}
 		\item Bayesian Gaussian Process (GP)
@@ -1396,7 +1403,7 @@ SpTimer es una librería que construye modelos espacio-temporales basándose en mo
 	\end{itemize}
 \smallbreak
 Aunque son modelos complicados, es muy importante conocer cuáles son los parámetros que se van a ajustar y cuáles son sus características.
-
+\newpage
 \underline{Características y parámetros de los modelos de spTimer}:
 \begin{itemize}
 		\item Constan de una parte lineal, parecida a una regresión. Estas componentes se suelen llamar \textit{``covariates``} en la literatura, y suelen denotarse por $X_{1t}$. Cada una de esas componentes tiene asociado un parámetro, formándse así un vector de parámetros \textit{regresivos}, $\beta$.
@@ -1417,8 +1424,7 @@ En resumen, con cada uno de los tres modelos de spTimer, lo que se trata es de b
 La búsqueda se hará para encontrar una aproximación que sea buena. La bondad de la aproximación se mide con el PMCC (Predictive Model Choice Criteria), que es un dato proporcionado por las funciones de la librería.
 \smallbreak
 
-\paragraph{Descripción del dataset utilizado de ejemplo en la librería}
-
+\subsubsection{Descripción del dataset utilizado de ejemplo en la librería}
 Para estudiar una serie espacio temporal, necesitamos, al menos, varias coordenadas geográficas (2 en este caso: latitud y longitud) y una o varias escalas temporales. Un modelo con 2 escalas temporales, por ejemplo, sería: (año, semana).
 Para realizar un estudio previo, la librería utiliza el dataset de taxis de Nueva York (NYdata) que se encuentra dentro de la librería spTimer.
 A continuación se cargan y visualizan los datos:
@@ -1443,22 +1449,22 @@ Como conclusión, un dataset para este tipo de problemas debe tener:
 				\item Hora
 			\end{itemize}
 	\end{itemize}
-\smallbreak
-Estos dos bloques serían los principales. A ellos, se añadirían columnas que representen una característica o propiedad del fenómeno a representar, que ocurra en unas coordeandas geográficas determiandas y en un tiempo determinado. Estas columnas son las que deben agregarse en función de la granularidad que se defina, principalmente, en las columnas temporales.
+
+Estos dos bloques serían los principales. A ellos, se añadirían columnas que representen una característica o propiedad del fenómeno a representar, que ocurra en unas coordenadas geográficas determinadas y en un tiempo determinado. Estas columnas son las que deben agregarse en función de la granularidad que se defina, principalmente, en las columnas temporales.
 
 Finalmente, se hace la predicción sobre una de estas columnas agregadas que hemos añadido.
 
-\paragraph{Fitting}
-
+\subsubsection{Fitting}
+\smallbreak
 Para realizar el fitting, spTimer muestrea el dataframe con \textit{muestreo de Gibbs} (muestreo utilizado para obtener muestras aleatorias de una distribución conjunta de dos o más variables aleatorias). Después, hace el fitting según los parámetros que le indiquemos. De entre todos los parámetros que hay, los más interesantes para empezar a arrancar el modelo son:
 	\begin{itemize}
 			\item Cuál es la parte regresiva del modelo (parámetros $\beta$). Se hace a través de un elemento ``fórmula`` de R.
-			\item Los datos de origen, con todas las columnas (data=)
-			\item Tipo de modelo: GP, AR o GPP. Es importante destacar que el GPP requiere hacer operaciones adicionales con los datos. GP y AR son más directos. La diferencia entre GP y AR es que, si bien ambos parten de modelos gaussianos, AR incorpora un término de autorregresión ($\rho$) que GP no tiene.
+			\item Los datos de origen, con todas las columnas (\textit{data=})
+			\item Tipo de modelo: GP, AR o GPP. Es importante destacar que el modelo GPP requiere hacer operaciones adicionales con los datos. GP y AR son más directos. La diferencia entre GP y AR es que, si bien ambos parten de modelos gaussianos, AR incorpora un término de autorregresión ($\rho$) que GP no tiene.
 			\item Coordenadas geográficas
 			\item Coordenadas temporales
 	\end{itemize}
-\smallbreak
+
 Después, se puede añadir complejidad al modelo con el resto de opciones. Por ejemplo, se pueden definir los priors de los parámetros.
 Por ejemplo, con el dataset de NY:
 
@@ -1477,31 +1483,30 @@ Por ejemplo, con el dataset de NY:
 		\label{MOD-sptNY3}
 	\end{figure}
 
-\paragraph{Parte predictiva}
-
+\subsubsection{Parte predictiva}
+\smallbreak
 En la fase predictiva, sptimer utiliza la función \textit{predict} que requiere dos argumentos:
 
 	\begin{itemize}
-			\item ``Newcoords``: debe contener los nuevos puntos de coordenadas donde queremos predecir
-			\item ``Newdata``: que contiene los valores de las covariables
+			\item \textit{Newcoords}: debe contener los nuevos puntos de coordenadas donde queremos predecir
+			\item \textit{Newdata}: que contiene los valores de las covariables
 	\end{itemize}
-\smallbreak
 
 El tipo de argumento en la predicción puede ser ``espacial`` o ``temporal``. Si el valor es ``espacial``, solo se realizará la predicción espacial en el \textit{newcoords} que deben ser diferentes de los sitios ajustados proporcionados por el argumento de \textit{coords}. Cuando se especifica la opción ``temporal``, se realizará el pronóstico y, en este caso, los \textit{newcoords} también pueden contener elementos de los sitios ajustados, en cuyo caso solo se utilizarán datos temporales. Esta función, realizará un pronóstico más allá del último punto de tiempo ajustado.
 
-En cuanto a la medición de la predicción, la librería utiliza la función spT.validation que muestra las siguientes métricas:
-
+En cuanto a la medición de la predicción, la librería utiliza la función \textit{spT.validation} que muestra las siguientes métricas:
+\newpage
 	\begin{itemize}
-		\item \textbf{MSE} (mean squared error) $\frac{1}{m}\sum_{i=1}^{m}\left (\widehat{z}-z_{i} \right )^2$
-		\item \textbf{RMSE} (root mean squared error) $\sqrt{\frac{1}{n}\Sigma_{i=1}^{n}{\Big(\frac{d_i -f_i}{\sigma_i}\Big)^2}}$
-		\item \textbf{MAE} (mean absolute error) $\frac{1}{n}\sum_{t=1}^{n}|e_t|$
-		\item \textbf{rBIAS} (relative bias) $\frac{1}{m \overline{z}}\sum_{i=1}^{m}\left (\widehat{z}-z_{i} \right )$
-		\item \textbf{rMSEP} (relative mean separation) $\frac{\sum_{i=1}^{m} \left (\widehat{z}-z_{i} \right )^2}{\sum_{i=1}^{m} \left (\overline{z}_p-z_{i} \right )^2}$
+		\item \textbf{MSE} (mean squared error): $\frac{1}{m}\sum_{i=1}^{m}\left (\widehat{z}-z_{i} \right )^2$
+		\item \textbf{RMSE} (root mean squared error): $\sqrt{\frac{1}{n}\Sigma_{i=1}^{n}{\Big(\frac{d_i -f_i}{\sigma_i}\Big)^2}}$
+		\item \textbf{MAE} (mean absolute error): $\frac{1}{n}\sum_{t=1}^{n}|e_t|$
+		\item \textbf{rBIAS} (relative bias): $\frac{1}{m \overline{z}}\sum_{i=1}^{m}\left (\widehat{z}-z_{i} \right )$
+		\item \textbf{rMSEP} (relative mean separation): $\frac{\sum_{i=1}^{m} \left (\widehat{z}-z_{i} \right )^2}{\sum_{i=1}^{m} \left (\overline{z}_p-z_{i} \right )^2}$
 	\end{itemize}
 
 
-\paragraph{Dataset parking en Seattle para modelos SpTimer}
-
+\subsubsection{Dataset parking en Seattle para modelos SpTimer}
+\smallbreak
 En las pruebas que hemos realizado con los modelos spTimer para nuestro dataset, para poder hacer una comparativa hemos desechado la parte espacial del modelo y nos hemos centrado en la parte temporal. El dataset de prueba contiene 30 parquímetros de la ciudad de Seattle con mayor ocupación. 
 El modelo para nuestro dataset quedaría de la siguiente manera:
 
@@ -1511,11 +1516,10 @@ El modelo para nuestro dataset quedaría de la siguiente manera:
 		\caption{Código spTimer para nuestros datos}
 		\label{MOD-spt1}
 	\end{figure}
-\newpage
 
 Para nuestras pruebas, hemos probado con la combinación de diferentes modelos con los métodos de transformación para la variable de respuesta (\textit{model} y \textit{scale.transform}). De esta manera hemos probado los modelos GP y AR y los métodos de transformación de la variable respuesta SQRT y NONE, este último, el default del modelo. 
-Destacar que hemos descartado el modelo GPP en nuestras pruebas. Este modelo trata de definir los efectos aleatorios $\eta (s_{i}, t)$ en un número menor, m, de ubicaciones, llamados knots y luego utiliza el método kriging para predecir esos efectos aleatorios en los datos y ubicaciones de predicción. 
-En la predicción, hemos tomado la parte temporal del modelo para poder así hacer una comparativa con otros.  En esta parte, spTimer incluye el plotting de librería forecast y definiendo el ``site`` que es la posición del \textit{element key} podemos prepresentar la predicción con gráficos como el siguiente:
+Destacar que hemos descartado el modelo GPP en nuestras pruebas. Este modelo trata de definir los efectos aleatorios $\eta (s_{i}, t)$ en un número menor, m, de ubicaciones, llamados \textit{knots} y luego utiliza el método \textit{kriging} para predecir esos efectos aleatorios en los datos y ubicaciones de predicción. 
+En la predicción, hemos tomado la parte temporal del modelo para poder así hacer una comparativa con otros.  En esta parte, spTimer incluye el plotting de librería forecast y definiendo el ``site`` que es la posición del \textit{element key} podemos presentar la predicción con gráficos como el siguiente:
 
 	\begin{figure} [!htb]
 		\centering
@@ -1523,21 +1527,19 @@ En la predicción, hemos tomado la parte temporal del modelo para poder así hacer
 		\caption{Representación de la predicción con spTimer}
 		\label{MOD-spt2}
 	\end{figure}
-\newpage
 
 \section{Modelo descartado: HTS}
 
-Hts es una librería que trata las series temporales relacionadas con estructuras jerárquicas de los datos. Estas estructuras pueden ser dimensiones geográficas, de producto, de género, etc. y son frecuentes en datasets fruto de recopilación de datos.
-Estos datos, pueden tener una estructura jerárquica única, o no. Como ejemplo de estructura jerárquica, la documentación de librería pone de ejemplo datos macroeconómicos donde la renta de un país se desagrega de la siguiente manera:  $Y=C+G+I+X-M$, donde C es el consumo, G el gasto, I la inversión, X las exportaciones y M las importaciones. 
+HTS es una librería que trata las series temporales relacionadas con estructuras jerárquicas de los datos. Estas estructuras pueden ser dimensiones geográficas, de producto, de género, etc. y son frecuentes en datasets fruto de recopilación de datos.
+Estos datos, pueden tener una estructura jerárquica única, o no. Como ejemplo de estructura jerárquica, la documentación de la librería pone de ejemplo datos macroeconómicos donde la renta de un país se desagrega de la siguiente manera: $Y=C+G+I+X-M$, donde \textit{C} es el consumo, \textit{G} el gasto, \textit{I} la inversión, \textit{X} las exportaciones y \textit{M} las importaciones. 
 Para una estructura agrupada no jerárquica, el ejemplo indicado es la mortalidad de Australia desagregada por género y a su vez por estados. Pero esta jerarquía no es única, la podemos invertir.
-En la literatura estadística venían existiendo 3 enfoques en el pronóstico jerárquico de series temporales:
+En la literatura estadística existen 3 enfoques en el pronóstico jerárquico de series temporales:
 
 	\begin{itemize}
 		\item ``Top-down`` o de arriba hacia abajo.
 		\item ``Bottom-up`` o de abajo hacia arriba.
 		\item ``Middle-out`` o de enfoque de aproximación de media salida.
 	\end{itemize}
-\smallbreak
 
 Estos métodos, hacen pronósticos en los diferentes niveles y van agregando para obtener un pronóstico mayor. El modelo de hts, implementa estos modelos tomando en cuenta la correlación entre las series en cada nivel.
 En el ejemplo práctico de hts, se trata una serie temporal con la mortalidad infantil de Australia de 1933-2003 con 2 etiquetas,  la de género (male or female) y por estados del país tomandose 8, lo que resulta 16 series en el nivel inferior (bottom).
@@ -1549,18 +1551,12 @@ El resultado de la predicción por niveles para los siguientes 10 años estaría re
 		\caption{Predicciones de ejemplo con la librería HTS}
 		\label{MOD-hts}
 	\end{figure}
+
+Esta librería nos ha resultado de interés, pero habiendo hecho un estudio de ésta junto con las posibles combinaciones jerárquicas de las variables de nuestro dataset, hemos descartado su prueba e inclusión en la modelización. 
+
 \newpage
-
-Esta librería nos ha resultado de interés, pero habiendo hecho un estudio de esta junto con las posibles combinaciones jerárquicas de las variables de nuestro dataset, hemos descartado su prueba e inclusión en la modelización. 
-
-
 \section{Aplicación de los modelos}
 Para comparar todos los modelos mencionados con sus distintas variantes (sobre la serie original, o transformada logarítmicamente, o con regresores), utilizamos una técnica llamada \textit{Day Forward-Chaining}. \cite{MODten}
-\smallbreak
-Partimos de nuestra serie temporal acotada al primer trimestre del año con 936 observaciones, correspondientes a 78 días hábiles. 
-Comenzamos considerando los 30 primeros días hábiles de la serie (30 días * 12 horas = 360 observaciones) como el primer conjunto de entrenamiento de los modelos, realizamos la primera predicción de las 12 horas del día siguiente, y calculamos el MAE (\textit{Mean Absolute Error}) asociado. 
-En el siguiente paso el conjunto de entrenamiento aumenta en 12 observaciones más de la serie y repetimos el proceso con la predicción de las 12 horas del día siguiente y cálculo del MAE asociado. De esta forma el conjunto de entrenamiento crece con cada iteración hasta tener un tamaño final igual a 936 - 12 = 924 observaciones y se repite el proceso por última vez con la predicción de las últimas 12 horas del trimestre y cálculo del MAE asociado. 
-Finalmente obtenemos un vector con un total de 48 valores de MAE distintos y calculamos su MAD (\textit{Median Absolute Deviation)} y su Media winsorizada al 5\% superior para descartar posibles outliers. El valor de la Media winsorizada asociada a cada modelo y parquímetro será el parámetro que utilizaremos para comparar los modelos entre sí.      
 
 	\begin{figure} [!htb]
 		\centering
@@ -1568,9 +1564,13 @@ Finalmente obtenemos un vector con un total de 48 valores de MAE distintos y cal
 		\caption{Técnica Day Forward-Chaining}
 		\label{MOD-valnes}
 	\end{figure}
+	
+Partimos de nuestra serie temporal acotada al primer trimestre del año con 936 observaciones, correspondientes a 78 días hábiles. 
+Comenzamos considerando los 30 primeros días hábiles de la serie (30 días * 12 horas = 360 observaciones) como el primer conjunto de entrenamiento de los modelos, realizamos la primera predicción de las 12 horas del día siguiente, y calculamos el MAE (\textit{Mean Absolute Error}) asociado. 
+En el siguiente paso el conjunto de entrenamiento aumenta en 12 observaciones más de la serie y repetimos el proceso con la predicción de las 12 horas del día siguiente y cálculo del MAE asociado. De esta forma el conjunto de entrenamiento crece con cada iteración hasta tener un tamaño final igual a 936 - 12 = 924 observaciones y se repite el proceso por última vez con la predicción de las últimas 12 horas del trimestre y cálculo del MAE asociado. 
+Finalmente obtenemos un vector con un total de 48 valores de MAE distintos y calculamos su MAD (\textit{Median Absolute Deviation)} y su Media winsorizada al 5\% superior para descartar posibles outliers. El valor de la Media winsorizada asociada a cada modelo y parquímetro será el parámetro que utilizaremos para comparar los modelos entre sí.      
 
-\newpage
-En el caso de los componentes del modelo BSTS se considera en cada iteración que las últimas 12 observaciones del conjunto de entrenamiento se utilizan para validación y selección de los mejores hiperparámetros del modelo. Y en el caso de spTimer de forma análoga para seleccionar el mejor submodelo entre GP y AR. 
+En el caso de los componentes del modelo BSTS se considera en cada iteración que las últimas 12 observaciones del conjunto de entrenamiento se utilizan para validación y selección de los mejores hiperparámetros del modelo. Y en el caso de spTimer de forma análoga para seleccionar el mejor submodelo entre GP y AR. En la Figura \ref{MOD-bsts-valnes} se muestra el diagrama asociado. 
 
 	\begin{figure} [!htb]
 		\centering
@@ -1611,7 +1611,7 @@ En la Figura \ref{RES-top1-all} mostramos cuáles son los mejores modelos y sus r
 		\label{RES-top1-all}
 	\end{figure}
 
-\smallbreak
+\newpage
 Se observa también que hay gran variabilidad entre los distintos parquímetros para los valores mínimos de la media obtenidos, desde 5.16 hasta 11.245, siendo curioso que los valores extremos mencionados aparezcan para los parquímetros con más ceros (menor media) y menos ceros (mayor media), ya que como se puede comprobar en la Figura \ref{RES-plot-wm-nz} no hay una relación para el resto de los parquímetros, salvo que los valores están más acotados en rango para aquellos parquímetros con mayor número de ceros. Los valores del MAD (desviación absoluta media) están bastante acotados entre 1.26 y 2.88, indicando que hay homogeneidad en los resultados.
 	\begin{figure} [!htb]
 		\centering
@@ -1629,6 +1629,7 @@ En la Figura \ref{RES-top1-models} se muestra la distribución agrupada por famil
 		\label{RES-top1-models}
 	\end{figure}
 
+\newpage
 Por otra parte, comparando los valores de la media obtenida con el mejor modelo frente a la media obtenida con el segundo mejor modelo, vemos que para la mitad de los parquímetros los dos mejores modelos pertenecen a la misma familia, y que para tres parquímetros concretos apenas hay una diferencia de centésimas entre los valores de los dos mejores modelos, aunque en esos tres casos los dos mejores modelos pertenecen a familias distintas. Mostramos los resultados obtenidos para los 3 parquímetros en esa situación:
 
 	\begin{figure} [!htb]
@@ -1649,7 +1650,8 @@ Por otra parte, comparando los valores de la media obtenida con el mejor modelo 
 		\caption{Resultados de los dos mejores modelos para el parquímetro con id 69098}
 		\label{RES-top2-ek69098}
 	\end{figure}
- 
+
+\newpage 
 Ampliando la evaluación a los 3 mejores modelos por cada parquímetro, obtenemos que se mantiene el predominio de la familia TBATS y BATS pero se reduce al 60\% de los casos, mientras que la familia Holt-Winters aparece destacada en un 22\% de los casos, un 12\% para la familia MSTL y un 5\% para los modelos BSTS.
 
 	\begin{figure} [!htb]
@@ -1685,13 +1687,13 @@ Recordamos que para cada parquímetro hemos analizado 23 modelos, que podemos ord
 \underline{Relevancia de los regresores}
 \smallbreak
 \underline{Modelos sencillos frente a modelos complejos}
-
-Un negocio real que podría derivarse de este TFM sería el de la creación de una app que, utilizando el modelo predictivo tbats de la librería forecast diera una predicción a los usuarios sobre el porcentaje de ocupación de una zona determinada. Por supuesto, somos conscientes que los datos obtenidos para este TFM son datos del pasado, y para poder crear una app que fuera rentable y de utilidad se tendrían que obtener y utilizar datos near-real-time o real-time. 
+\smallbreak
+Un negocio real que podría derivarse de este TFM sería la creación de una app que, utilizando el modelo predictivo TBATS de la librería \textit{forecast} diera una predicción a los usuarios sobre el porcentaje de ocupación de una zona determinada. Por supuesto, somos conscientes que los datos obtenidos para este TFM son datos del pasado, y para poder crear una app que fuera rentable y de utilidad se tendrían que obtener y utilizar datos near-real-time o real-time. 
 
 Cabe señalar que nosotros hemos planteado a lo largo del TFM un estudio basado en la predicción de ocupación por horas del día siguiente. Esto podría simplificar la obtención de los datos, ya que los datos necesarios serían los del día anterior para predecir por horas la ocupación del día siguiente.
 Una primera posible mejora para un caso de negocio real sería la franja objetivo de predicción. En vez de agrupar por horas y dar un porcentaje de ocupación horaria, se podría dar una predicción por minutos, o al menos, por medias horas. Esto daría mucha más riqueza y utilidad a los usuarios.
 
-Se podrían obtener los datos de fuentes muy diversas, pero lo menos complicado sería tener un acuerdo con la compañía responsable de los parquímetros, para asegurar la calidad de los datos. En Seattle lo han conseguido desde la app PayByPhone \cite{CDUone}, que es una app desde la cual poder hacer los pagos de los parquímetros. Hasta tal punto ha llegado la satisfacción con esta app, que el Departamento de Transportes de Seattle (SDOT) ha ampliado su acuerdo con la misma, eliminando el sobrecoste de 35 céntimos que antes incluía a los usuarios de esta app en el pago de sus tickets. \cite{CDUtwo}
+Se podrían obtener los datos de fuentes muy diversas, pero lo menos complicado sería tener un acuerdo con la compañía responsable de los parquímetros, para asegurar la calidad de los datos. En Seattle lo han conseguido desde la app \textit{PayByPhone} \cite{CDUone}, que es una app desde la cual poder hacer los pagos de los parquímetros. Hasta tal punto ha llegado la satisfacción con esta app, que el Departamento de Transportes de Seattle (SDOT) ha ampliado su acuerdo con la misma, eliminando el sobrecoste de 35 céntimos que antes incluía a los usuarios de esta app en el pago de sus tickets. \cite{CDUtwo}
 Otra manera que permitiría la obtención de datos podría ser la instalación de sensores, lo cual daría al negocio cierta independencia del proveedor de los datos, aunque la contrapartida inevitable sería el alto coste de los mismos. Con los sensores se podrían tener datos muy actualizados, pero el coste de partida de las infraestructuras necesarias para el funcionamiento de la app sería bastante elevado.
 También se podría aprovechar la información de los mismos usuarios, que compartirían con la app su geolocalización y la proveerían de datos. Éstos compartirían su localización y actualizarían el estado de las plazas libres. Sin embargo, ésta no podría ser la única fuente de datos, pues sin usuarios la app no lograría progresar.
 
