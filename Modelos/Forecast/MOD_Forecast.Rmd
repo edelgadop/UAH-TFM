@@ -3,7 +3,7 @@ title: "R TFM Modelos Forecast"
 output: html_document
 ---
 
-```{r}
+```{r results='hide'}
 library(forecast)
 library(dplyr)
 library(tidyverse)
@@ -17,7 +17,7 @@ library(DescTools)
 ```
 
 ```{r}
-setwd("~/Downloads/TFM/Forecast")
+setwd("~/MASTER Data Science/TFM/Modelos/Forecast")
 data <- fread("SerieTotal2016_ext_selected.csv", sep=",", header=T)
 ek_list = unique(data$element_key)
 ```
@@ -70,9 +70,9 @@ fwrite(results_df, file="results_auto_arima_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_auto_arima_1t_extra.csv")
@@ -145,9 +145,9 @@ fwrite(results_df, file="results_auto_arima_regr_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_auto_arima_regr_1t_extra.csv")
@@ -207,9 +207,9 @@ fwrite(results_df, file="results_auto_arima_log_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_auto_arima_log_1t_extra.csv")
@@ -276,9 +276,9 @@ fwrite(results_df, file="results_auto_arima_regr_log_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_auto_arima_regr_log_1t_extra.csv")
@@ -329,9 +329,9 @@ fwrite(results_df, file="results_ma_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_ma_1t_extra.csv")
@@ -390,9 +390,9 @@ fwrite(results_df, file="results_ma_log_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_ma_log_1t_extra.csv")
@@ -443,9 +443,9 @@ fwrite(results_df, file="results_hw_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_hw_1t_extra.csv")
@@ -503,9 +503,9 @@ fwrite(results_df, file="results_hw_log_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_hw_log_1t_extra.csv")
@@ -550,9 +550,9 @@ fwrite(results_df, file="results_bats_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_bats_1t_extra.csv")
@@ -601,9 +601,9 @@ fwrite(results_df, file="results_bats_log_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_bats_log_1t_extra.csv")
@@ -648,9 +648,9 @@ fwrite(results_df, file="results_tbats_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_tbats_1t_extra.csv")
@@ -699,9 +699,9 @@ fwrite(results_df, file="results_tbats_log_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_tbats_log_1t_extra.csv")
@@ -746,9 +746,9 @@ fwrite(results_df, file="results_stl_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_stl_1t_extra.csv")
@@ -797,9 +797,9 @@ fwrite(results_df, file="results_mstl_log_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_mstl_1t_extra.csv")
@@ -849,9 +849,9 @@ fwrite(results_df, file="results_dshw_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_dshw_1t_extra.csv")
@@ -903,9 +903,9 @@ fwrite(results_df, file="results_dshw_log_1t.csv")
 
 n <- nrow(results_df)
 for (i in 1:n){
-  vec_i <- as.double(unlist(strsplit(results_df$acc_vector[i], "|", fixed=TRUE)))
-  results_df$win_mean[i] <- mean(Winsorize(vec_i, probs=c(0, 0.95)))
-  results_df$mad[i] <- mad(vec_i)
+  vec_i <- results_df$acc_vector[i]
+  results_df$win_mean[i] <- mean(Winsorize(unlist(vec_i), probs=c(0, 0.95)))
+  results_df$mad[i] <- mad(unlist(vec_i))
 }
 
 fwrite(data, file="results_dshw_log_1t_extra.csv")
