@@ -2,6 +2,6 @@
 
 Máster en Data Science - Trabajo Fin de Máster
 
-PREDICCIÓN DE OCUPACIÓN DE PARQU ́ÍMETROS SEGÚN MODELOS PREDICTIVOS ESPACIO-TEMPORALES
+PREDICCIÓN DE OCUPACIÓN DE PARQUÍMETROS SEGÚN MODELOS PREDICTIVOS ESPACIO-TEMPORALES
 
 Alumnos: Eva Carbón, Emilio Delgado, Cintia García, Paloma Panadero y Pedro Sánchez
